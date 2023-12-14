@@ -1,10 +1,10 @@
-data/
+data/AnomalyDataset/
+!*.dvc
 *.pt
 *.joblib
 *tmp*
 *_debug*
 wandb
-!*.dvc
 
 ## Images
 # JPEG
