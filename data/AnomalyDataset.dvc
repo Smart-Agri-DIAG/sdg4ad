@@ -1,6 +1,6 @@
 outs:
-- md5: 94b688947f6d09cfd7bec71912e41116.dir
-  size: 2428975414
-  nfiles: 368
+- md5: bf31d48c35ec67d50353edd7493eef57.dir
+  size: 2538662893
+  nfiles: 1706
   hash: md5
   path: AnomalyDataset
