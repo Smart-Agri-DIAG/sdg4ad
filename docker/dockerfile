@@ -1,0 +1,20 @@
+#Immagine di base con Python e CUDA compatibile con la DGX
+FROM nvidia/cuda:11.0-base
+
+WORKDIR /app
+COPY . /app
+
+RUN apt-get update && apt-get install -y \
+    git \
+    libopencv-dev \
+    python3-opencv \
+    wget \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN pip install numpy torch matplotlib opencv-python imageio
+RUN pip install git+https://github.com/facebookresearch/segment-anything.git
+
+RUN wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+
+CMD ["python", "Grapes_Extractor.py"]
