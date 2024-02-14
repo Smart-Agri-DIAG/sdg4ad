@@ -1,6 +1,6 @@
 outs:
-- md5: 33e69a62e8a64e7a5ea3d139ee442d6c.dir
-  size: 108154289
-  nfiles: 1320
+- md5: 77042731141cf2932a679ed5dcadad0b.dir
+  size: 172190993
+  nfiles: 11666
   hash: md5
   path: CroppedPatchesDataset
