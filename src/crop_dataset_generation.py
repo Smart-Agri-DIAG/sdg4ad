@@ -1,4 +1,6 @@
 import cv2
+from pathlib import Path
+import numpy as np
 
 
 # Define a function to parse YOLO format bounding boxes and convert them to pixel coordinates
@@ -39,19 +41,26 @@ def parse_yolo_format(bbox_data, image_width, image_height):
 
 
 # Define a function to crop images based on the bounding box coordinates
-def crop_image(image_path, bbox_coordinates):
+def crop_image(image_input, bbox_coordinates):
     """
     Crop the image based on the bounding box coordinates.
 
     Parameters:
-    image_path (str): Path to the image file.
+    image_input: Can be PAth, str or the image itself (opened with opencv)
     bbox_coordinates (list of tuple): List containing pixel coordinates for bounding boxes.
 
     Returns:
     list of Image: List containing cropped Image objects.
     """
+    if not isinstance(bbox_coordinates, list):
+        raise ValueError('bbox_coordinates should be a list of tuples')
+    if isinstance(image_input, Path):
+        image_input = str(image_input)
+    if isinstance(image_input, np.ndarray):
+        image = image_input
+    else:
+        image = cv2.imread(image_input)
     cropped_images = []
-    image = cv2.imread(image_path)
     for bbox in bbox_coordinates:
         cropped_image = image[bbox[1]:bbox[3], bbox[0]:bbox[2]]
         cropped_images.append(cropped_image)
