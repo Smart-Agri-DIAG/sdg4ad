@@ -48,17 +48,21 @@ def write_split(image_paths, class_labels, output_file):
             file.write(f'{image} {label}\n')
 
 
-if __name__ == '__main__':
-    data_dir = 'data/CroppedPatchesDataset/PN/train'
-    output_dir = 'data/CroppedPatchesDataset/PN/'
-    n_splits = 5
-    output_prefix = 'split_'
-    image_extension = '.jpg'
+def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extension):
+    """
+    Generates the train/val splits for the dataset.
 
-    # Set the seed for reproducibility
-    random.seed(42)
-    np.random.seed(42)
+    This function generates the train/val splits for the dataset. It first retrieves the list of all the image paths
+    in the good and bad folders. It then uses the StratifiedKFold class from scikit-learn to generate the splits.
+    It writes the train and val splits to the output files.
 
+    Args:
+        data_dir (str): The path to the data directory.
+        output_dir (str): The path to the output directory.
+        n_splits (int): The number of splits to generate.
+        output_prefix (str): The prefix to use for the output files.
+        image_extension (str): The extension of the images.
+    """
     # Get the list of all the image paths in the good and bad folders
     good_images = get_image_list(data_dir, 'good', image_extension)
     bad_images = get_image_list(data_dir, 'bad', image_extension)
@@ -96,3 +100,22 @@ if __name__ == '__main__':
         val_file = os.path.join(output_dir, f'{output_prefix}{i}_val.txt')
         write_split(train_images, train_labels, train_file)
         write_split(val_images, val_labels, val_file)
+
+
+if __name__ == '__main__':
+    data_dirs = ['data/CroppedPatchesDataset/PN/train',
+                 'data/CroppedPatchesDataset/RG/train']
+    output_dirs = ['data/CroppedPatchesDataset/PN/',
+                   'data/CroppedPatchesDataset/RG/']
+    n_splits = 5
+    output_prefix = 'split_'
+    image_extension = '.jpg'
+
+    # Set the seed for reproducibility
+    random.seed(42)
+    np.random.seed(42)
+
+    for data_dir, output_dir in zip(data_dirs, output_dirs):
+        print(f'Generating splits for {data_dir}...')
+        generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extension)
+        print('Done!\n')
