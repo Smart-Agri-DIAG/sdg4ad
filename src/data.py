@@ -23,11 +23,15 @@ def get_val_transforms():
 
 class BinaryClassificationDataset(Dataset):
     def __init__(self, file_list_path, train=True):
+        pos_count = 0
         self.file_list = []
         with open(file_list_path, "r") as file:
             for line in file:
                 img_path, class_label = line.strip().split()
                 self.file_list.append((img_path, int(class_label)))
+                if int(class_label) == 1:
+                    pos_count += 1
+        self.pos_weight = (len(self.file_list) - pos_count) / pos_count
 
         if train:
             self.transforms = get_train_transforms()
@@ -41,7 +45,7 @@ class BinaryClassificationDataset(Dataset):
         img_path, class_label = self.file_list[idx]
         image = Image.open(img_path)
         image = self.transforms(image)
-        class_label = torch.tensor(class_label)
+        class_label = torch.tensor(class_label).float()
         return image, class_label
 
 
