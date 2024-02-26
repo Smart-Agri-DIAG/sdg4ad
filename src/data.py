@@ -8,7 +8,7 @@ from PIL import Image
 def get_train_transforms():
     return transforms.Compose([
         transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(30, interpolation=Image.BILINEAR),
+        transforms.ColorJitter(brightness=0.1, contrast=0.1),
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
