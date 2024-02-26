@@ -105,8 +105,8 @@ def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extensi
 if __name__ == '__main__':
     data_dirs = ['data/CroppedPatchesDataset/PN/train',
                  'data/CroppedPatchesDataset/RG/train']
-    output_dirs = ['data/CroppedPatchesDataset/PN/',
-                   'data/CroppedPatchesDataset/RG/']
+    output_dirs = ['data/Splits/PN/',
+                   'data/Splits/RG/']
     n_splits = 5
     output_prefix = 'split_'
     image_extension = '.jpg'
