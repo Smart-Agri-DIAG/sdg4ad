@@ -6,6 +6,7 @@ data/CroppedPatchesDataset/
 *tmp*
 *_debug*
 wandb
+output
 
 ## Images
 # JPEG
