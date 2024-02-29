@@ -4,9 +4,10 @@ split: 1
 epochs: 100
 early_stopping: True
 patience: 20
-lr: 0.0001
-batch_size: 1
+lr: 0.001
+batch_size: 16
 num_workers: 4
-mixed_precision: False
+mixed_precision: True
 checkpoint_dir: output/checkpoints/
-wandb_mode: online  # offline, online, disabled
+wandb_mode: disabled  # offline, online, disabled
+cae_inference_interval: 10
