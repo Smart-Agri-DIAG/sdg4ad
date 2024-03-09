@@ -6,6 +6,10 @@ import numpy as np
 from torch.cuda.amp import autocast, GradScaler
 import wandb
 from tqdm import tqdm
+import sys
+
+if "." not in sys.path:
+    sys.path.append(".")
 
 from src.models import CAE
 from src.data import BinaryClassificationDataset, AutoEncoderDataset
@@ -128,7 +132,7 @@ def validate(model, loss_fn, dataloader, device):
 
 
 if __name__ == "__main__":
-    cfg = load_config("config/config.yaml")
+    cfg = load_config("config/config_train.yaml")
 
     # Add subfolder to checkpoint dir with current date and time
     cfg["checkpoint_dir"] = os.path.join(cfg["checkpoint_dir"], datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))

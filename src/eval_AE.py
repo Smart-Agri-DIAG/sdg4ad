@@ -3,6 +3,10 @@ from matplotlib import pyplot as plt
 import torch
 import numpy as np
 from torch.cuda.amp import autocast, GradScaler
+import sys
+
+if "." not in sys.path:
+    sys.path.append(".")
 
 from src.models import CAE
 from src.data import BinaryClassificationDataset, AutoEncoderDataset
@@ -103,7 +107,7 @@ def evaluate(model, dataloader, loss_fn, threshold, device, scaler):
 
 
 if __name__ == "__main__":
-    cfg = load_config("config/config.yaml")
+    cfg = load_config("config/config_train.yaml")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_split_path = os.path.join(cfg["splits_path"], f"split_{cfg['split']}_train.txt")

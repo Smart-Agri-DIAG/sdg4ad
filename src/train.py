@@ -1,14 +1,19 @@
-from datetime import datetime
-import os
-import torch
-import numpy as np
-from torch.cuda.amp import autocast, GradScaler
-import wandb
-from tqdm import tqdm
 
-from src.models import BinaryClassifier
-from src.data import BinaryClassificationDataset
+import sys
+from tqdm import tqdm
+import wandb
+from torch.cuda.amp import autocast, GradScaler
+import numpy as np
+import torch
+import os
+from datetime import datetime
+
+if "." not in sys.path:
+    sys.path.append(".")
+
 from src.utils import load_config, print_config, set_seed
+from src.data import BinaryClassificationDataset
+from src.models import BinaryClassifier
 
 
 def train_1_epoch(model, optimizer, loss_fn, dataloader, device, scaler=None):
@@ -154,7 +159,7 @@ def validate(model, loss_fn, dataloader, device):
 
 
 if __name__ == "__main__":
-    cfg = load_config("config/config.yaml")
+    cfg = load_config("config/config_train.yaml")
 
     # Add subfolder to checkpoint dir with current date and time
     cfg["checkpoint_dir"] = os.path.join(cfg["checkpoint_dir"], datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
