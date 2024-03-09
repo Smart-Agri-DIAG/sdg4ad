@@ -2,12 +2,12 @@ seed: 42
 file_path: 'data/Splits/PN/split_1_train.txt'
 output_path: "output/split_1_train_v4"
 target_size: "720p"  # Resolution of the generated images. Must be one of "720p", "1080p", "1440p", "4K"
-plot: True  # If True, plots results for various stages of the pipeline
+plot: False  # If True, plots results for various stages of the pipeline
 
 # SAM
-sam_checkpoint: "weights/sam_vit_b_01ec64.pth"  # sam_vit_h_4b8939.pth
-model_type: "vit_b"  # "vit_h"
-device: "cpu"  # "cuda"
+sam_checkpoint: "weights/sam_vit_h_4b8939.pth"
+model_type: "vit_h"
+device: "cuda"
 points_per_side: 16
 
 # Canny
