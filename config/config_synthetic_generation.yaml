@@ -1,7 +1,7 @@
 seed: 42
 file_path: 'data/Splits/PN/split_1_train.txt'
 output_path: "output/split_1_train_v4"
-target_size: "720p"  # Resolution of the generated images. Must be one of "720p", "1080p", "1440p", "4K"
+target_size: "1080p"  # Resolution of the generated images. Must be one of "720p", "1080p", "1440p", "4K"
 plot: False  # If True, plots results for various stages of the pipeline
 
 # SAM
