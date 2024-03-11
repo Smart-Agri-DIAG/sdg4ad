@@ -76,6 +76,8 @@ def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extensi
     print(f'Total images: {len(all_images)}')
     print(f'Total labels: {len(all_labels)}')
 
+    write_split(all_images, all_labels, os.path.join(output_dir, 'all.txt'))
+
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     for i, (train_index, val_index) in enumerate(skf.split(all_images, all_labels), start=1):
