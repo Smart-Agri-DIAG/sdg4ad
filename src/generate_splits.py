@@ -8,11 +8,11 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold
 
 
-def get_image_list(data_dir, class_label, extension='.jpg'):
+def get_image_list(data_dir, extension='.jpg'):
     """
-    Retrieves a list of file paths for images from a specified directory with a given class label and file extension.
+    Retrieves a list of file paths of images from a specified directory with a given file extension.
 
-    This function iterates over all files in a specified subdirectory of the data directory. The subdirectory
+    This function iterates over all files in a specified directory. The subdirectory
     is determined by the class label. It then filters these files based on the file extension and returns a list
     of the file paths for these files.
 
@@ -25,9 +25,9 @@ def get_image_list(data_dir, class_label, extension='.jpg'):
         list: A list of file paths that match the given class label and file extension.
     """
     try:
-        return [os.path.join(data_dir, class_label, file) for file in os.listdir(os.path.join(data_dir, class_label)) if file.endswith(extension)]
+        return [os.path.join(data_dir, file) for file in os.listdir(data_dir) if file.endswith(extension)]
     except FileNotFoundError:
-        print(f"The directory {os.path.join(data_dir, class_label)} does not exist.")
+        print(f"The directory {data_dir} does not exist.")
         return []
 
 
@@ -64,8 +64,8 @@ def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extensi
         image_extension (str): The extension of the images.
     """
     # Get the list of all the image paths in the good and bad folders
-    good_images = get_image_list(data_dir, 'good', image_extension)
-    bad_images = get_image_list(data_dir, 'bad', image_extension)
+    good_images = get_image_list(os.path.join(data_dir, 'good'), image_extension)
+    bad_images = get_image_list(os.path.join(data_dir, 'bad'), image_extension)
 
     # Print the number of good and bad images
     print(f'Number of good images: {len(good_images)}')

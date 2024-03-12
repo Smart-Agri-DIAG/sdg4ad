@@ -1,0 +1,6 @@
+outs:
+- md5: 27b64cae0a65c75693d17b5dc2b1b299.dir
+  size: 186627555
+  nfiles: 4192
+  hash: md5
+  path: synthetic_images
