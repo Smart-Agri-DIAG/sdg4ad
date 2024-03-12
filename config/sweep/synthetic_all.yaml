@@ -1,0 +1,16 @@
+program: train.py
+project: sdg4ad
+entity: canopies-diag
+method: grid
+metric:
+  name: Validation Loss
+  goal: minimize
+parameters:
+  lr:
+    value: 0.00001
+  splits_path:
+    value: data/Splits/PN_with_synthetic/
+  split:
+    values: [1, 2, 3, 4, 5]
+  batch_size:
+    value: 32
