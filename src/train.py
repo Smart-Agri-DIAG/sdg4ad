@@ -8,12 +8,9 @@ import torch
 import os
 from datetime import datetime
 
-if "." not in sys.path:
-    sys.path.append(".")
-
-from src.utils import load_config, print_config, set_seed
-from src.data import BinaryClassificationDataset
-from src.models import BinaryClassifier
+from utils import load_config, print_config, set_seed
+from data import BinaryClassificationDataset
+from models import BinaryClassifier
 
 
 def train_1_epoch(model, optimizer, loss_fn, dataloader, device, scaler=None):
