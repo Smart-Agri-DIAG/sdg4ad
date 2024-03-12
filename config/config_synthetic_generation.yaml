@@ -1,10 +1,10 @@
 seed: 42
-file_path: ['data/Splits/PN/split_1_train.txt',
+file_paths: ['data/Splits/PN/split_1_train.txt',
             'data/Splits/PN/split_2_train.txt',
             'data/Splits/PN/split_3_train.txt',
             'data/Splits/PN/split_4_train.txt',
             'data/Splits/PN/split_5_train.txt']
-output_path: ["output/synthetic_images/split_1",
+output_paths: ["output/synthetic_images/split_1",
               "output/synthetic_images/split_2",
               "output/synthetic_images/split_3",
               "output/synthetic_images/split_4",
