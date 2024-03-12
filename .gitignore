@@ -1,4 +1,4 @@
-data/*.*
+data/*
 !*.dvc
 *.pt
 *.joblib
