@@ -167,8 +167,6 @@ def write_log(index, good_image_path, bad_image_path, log_folder):
         bad_image_path (str): The path of the bad grape image.
         log_folder (str): The path of the log folder.
     """
-    log_folder = os.path.join(log_folder, "logs")
-    os.makedirs(log_folder, exist_ok=True)
     with open(os.path.join(log_folder, f"log_anomaly_{index}.txt"), "a") as f:
         f.write(f"Anomaly {index} generated with:\n")
         f.write(f"Good image: {os.path.basename(good_image_path)}\n")
@@ -474,21 +472,24 @@ if __name__ == "__main__":
     set_seed(cfg["seed"])
 
     mask_generator = get_mask_generator(cfg)
-    good_image_paths, bad_image_paths = read_file_list(cfg["file_path"])
-    log_folder = os.path.join(cfg["output_path"], "logs")
-    os.makedirs(log_folder, exist_ok=True)
 
-    num_good_images = len(good_image_paths)
-    num_bad_images = len(bad_image_paths)
-    for index, good_image_path in tqdm(enumerate(good_image_paths), desc="Processing images", total=num_good_images):
-        bad_image_path = bad_image_paths[index % num_bad_images]
+    for file_path, output_path in zip(cfg["file_paths"], cfg["output_paths"]):
+        print(f"Generating synthetic images for {file_path}...")
+        good_image_paths, bad_image_paths = read_file_list(file_path)
+        log_folder = os.path.join(output_path, "logs")
+        os.makedirs(log_folder, exist_ok=True)
 
-        img_good = resize_image(good_image_path, cfg["target_size"])
-        img_bad = resize_image(bad_image_path, cfg["target_size"])
+        num_good_images = len(good_image_paths)
+        num_bad_images = len(bad_image_paths)
+        for index, good_image_path in tqdm(enumerate(good_image_paths), desc="Processing images", total=num_good_images):
+            bad_image_path = bad_image_paths[index % num_bad_images]
 
-        new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
+            img_good = resize_image(good_image_path, cfg["target_size"])
+            img_bad = resize_image(bad_image_path, cfg["target_size"])
 
-        write_log(index, good_image_path, bad_image_path, log_folder)
-        imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.jpg", new_img)
+            new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
+
+            write_log(index, good_image_path, bad_image_path, log_folder)
+            imageio.imsave(f"{output_path}/anomaly_{index}.jpg", new_img)
 
     print("Synthetic images generated successfully!")

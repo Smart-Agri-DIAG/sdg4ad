@@ -1,5 +1,4 @@
-data/AnomalyDataset/
-data/CroppedPatchesDataset/
+data/*.*
 !*.dvc
 *.pt
 *.joblib

@@ -1,6 +1,14 @@
 seed: 42
-file_path: 'data/Splits/PN/all.txt'
-output_path: "output/synthetic_images"
+file_path: ['data/Splits/PN/split_1_train.txt',
+            'data/Splits/PN/split_2_train.txt',
+            'data/Splits/PN/split_3_train.txt',
+            'data/Splits/PN/split_4_train.txt',
+            'data/Splits/PN/split_5_train.txt']
+output_path: ["output/synthetic_images/split_1",
+              "output/synthetic_images/split_2",
+              "output/synthetic_images/split_3",
+              "output/synthetic_images/split_4",
+              "output/synthetic_images/split_5"]
 target_size: "1080p"  # Resolution of the generated images. Must be one of "720p", "1080p", "1440p", "4K"
 plot: False  # If True, plots results for various stages of the pipeline
 
