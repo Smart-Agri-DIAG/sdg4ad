@@ -1,0 +1,24 @@
+program: src/train.py
+project: sdg4ad
+entity: canopies-diag
+method: grid
+metric:
+  name: Validation Loss
+  goal: minimize
+parameters:
+  lr:
+    value: 0.00001
+  train_splits_path:
+    values: ["data/Splits/PN/",
+             "data/Splits/PN_addition_100/",
+             "data/Splits/PN_addition_50/",
+             "data/Splits/PN_addition_25/",
+             "data/Splits/PN_addition_10/",
+             "data/Splits/PN_substitution_100/",
+             "data/Splits/PN_substitution_50/",
+             "data/Splits/PN_substitution_25/",
+             "data/Splits/PN_substitution_10/"]
+  split:
+    values: [1, 2, 3, 4, 5]
+  batch_size:
+    value: 32

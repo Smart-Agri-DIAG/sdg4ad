@@ -43,9 +43,9 @@ class BinaryClassificationDataset(Dataset):
         self.pos_weight = (len(self.file_list) - pos_count) / pos_count
 
         if train:
-            self.transforms = get_train_transforms(resize)
+            self.transforms = get_train_transforms(resize=resize, normalize=True)
         else:
-            self.transforms = get_val_transforms(resize)
+            self.transforms = get_val_transforms(resize=resize, normalize=True)
 
     def __len__(self):
         return len(self.file_list)
