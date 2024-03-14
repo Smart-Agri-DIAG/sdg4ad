@@ -19,6 +19,6 @@ parameters:
              "data/Splits/PN_substitution_25/",
              "data/Splits/PN_substitution_10/"]
   split:
-    values: [1, 2, 3, 4, 5]
+    values: [1, 2, 3]
   batch_size:
     value: 32
