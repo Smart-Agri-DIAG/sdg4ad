@@ -61,7 +61,7 @@ def train(cfg):
 
     best_val_loss = float("inf")
     best_epoch = 0
-    patience = 0
+    best_balanced_accuracy = 0.0
 
     for epoch in range(cfg["epochs"]):
         train_loss = train_1_epoch(model, optimizer, loss_fn, train_dataloader, device, scaler)
@@ -78,6 +78,23 @@ def train(cfg):
         print(f"    TP: {val_metrics['tp']}, TN: {val_metrics['tn']}, FP: {val_metrics['fp']}, FN: {val_metrics['fn']}")
         print(f"Learning Rate: {optimizer.param_groups[0]['lr']}")
 
+        if (val_metrics["balanced_accuracy"] > best_balanced_accuracy or
+                val_metrics["balanced_accuracy"] == best_balanced_accuracy and val_metrics["loss"] < best_val_loss):
+            best_epoch = epoch + 1
+            best_val_loss = val_metrics["loss"]
+            best_balanced_accuracy = val_metrics["balanced_accuracy"]
+
+            torch.save(model.state_dict(), os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
+            wandb.save(os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
+
+            # Log summary metrics at best epoch
+            wandb.run.summary["Best Epoch"] = best_epoch
+            wandb.run.summary["Best Validation Loss"] = val_metrics["loss"]
+            wandb.run.summary["Best Balanced Accuracy"] = val_metrics["balanced_accuracy"]
+            wandb.run.summary["Best Precision"] = val_metrics["precision"]
+            wandb.run.summary["Best Recall"] = val_metrics["recall"]
+            wandb.run.summary["Best F1-score"] = val_metrics["f1_score"]
+
         wandb.log({
             "Train Loss": train_loss,
             "Validation Loss": val_metrics["loss"],
@@ -90,21 +107,7 @@ def train(cfg):
             "Validation FP": val_metrics["fp"],
             "Validation FN": val_metrics["fn"],
             "Learning Rate": optimizer.param_groups[0]["lr"],
-            "Best Epoch": best_epoch,
         }, step=epoch + 1)
-
-        if val_metrics["loss"] < best_val_loss:
-            patience = 0
-            best_epoch = epoch + 1
-            best_val_loss = val_metrics["loss"]
-            torch.save(model.state_dict(), os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
-            wandb.save(os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
-        elif cfg["early_stopping"]:
-            patience += 1
-            print(f"Validation loss did not improve. Patience ({patience}/{cfg['patience']})")
-            if patience == cfg["patience"]:
-                print(f"Early stopping after {epoch + 1} epochs.")
-                break
 
     wandb.finish()
 
