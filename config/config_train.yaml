@@ -1,5 +1,5 @@
 seed: 42
-train_splits_path: data/Splits/PN_addition_10/
+train_splits_path: data/Splits/PN/
 val_splits_path: data/Splits/PN/
 split: 1
 epochs: 100
