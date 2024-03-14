@@ -3,8 +3,8 @@ project: sdg4ad
 entity: canopies-diag
 method: grid
 metric:
-  name: Validation Loss
-  goal: minimize
+  name: Validation Balanced Accuracy
+  goal: maximize
 parameters:
   lr:
     value: 0.00001
