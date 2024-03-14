@@ -43,12 +43,12 @@ def train_1_epoch(model, optimizer, loss_fn, dataloader, device, scaler=None):
 
 def train(cfg):
     train_split_path = os.path.join(cfg["train_splits_path"], f"split_{cfg['split']}_train.txt")
-    train_dataset = BinaryClassificationDataset(train_split_path, resize=(512, 512))
+    train_dataset = BinaryClassificationDataset(train_split_path)
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset, batch_size=cfg["batch_size"], shuffle=True, num_workers=cfg["num_workers"])
 
     val_split_path = os.path.join(cfg["val_splits_path"], f"split_{cfg['split']}_val.txt")
-    val_dataset = BinaryClassificationDataset(val_split_path, train=False, resize=(512, 512))
+    val_dataset = BinaryClassificationDataset(val_split_path, train=False)
     val_dataloader = torch.utils.data.DataLoader(
         val_dataset, batch_size=cfg["batch_size"], shuffle=False, num_workers=cfg["num_workers"])
 
