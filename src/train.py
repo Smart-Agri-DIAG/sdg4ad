@@ -57,7 +57,7 @@ def train(cfg):
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg["lr"])
     loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(train_dataset.pos_weight).to(device))
     scaler = GradScaler() if cfg["mixed_precision"] else None
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=cfg["epochs"]//3+1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(0, cfg["epochs"]-10))
 
     best_val_loss = float("inf")
     best_epoch = 0
