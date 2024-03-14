@@ -127,26 +127,12 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
 
 
 if __name__ == '__main__':
-    data_dirs = ['data/synthetic_images/PN/split_1',
-                 'data/synthetic_images/PN/split_2',
-                 'data/synthetic_images/PN/split_3',
-                 'data/synthetic_images/PN/split_4',
-                 'data/synthetic_images/PN/split_5',
-                 'data/synthetic_images/RG/split_1',
-                 'data/synthetic_images/RG/split_2',
-                 'data/synthetic_images/RG/split_3',
-                 'data/synthetic_images/RG/split_4',
-                 'data/synthetic_images/RG/split_5']
+    data_dirs = ['data/synthetic_images_PN/split_1',
+                 'data/synthetic_images_PN/split_2',
+                 'data/synthetic_images_PN/split_3']
     original_splits = ['data/Splits/PN/split_1_train.txt',
                        'data/Splits/PN/split_2_train.txt',
-                       'data/Splits/PN/split_3_train.txt',
-                       'data/Splits/PN/split_4_train.txt',
-                       'data/Splits/PN/split_5_train.txt',
-                       'data/Splits/RG/split_1_train.txt',
-                       'data/Splits/RG/split_2_train.txt',
-                       'data/Splits/RG/split_3_train.txt',
-                       'data/Splits/RG/split_4_train.txt',
-                       'data/Splits/RG/split_5_train.txt']
+                       'data/Splits/PN/split_3_train.txt']
     output_root = 'data/Splits/'
 
     # Set the seed for reproducibility

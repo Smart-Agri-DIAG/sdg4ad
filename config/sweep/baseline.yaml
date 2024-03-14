@@ -9,6 +9,6 @@ parameters:
   lr:
     values: [0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001]
   split:
-    values: [1, 2, 3, 4, 5]
+    values: [1, 2, 3]
   batch_size:
     value: 32

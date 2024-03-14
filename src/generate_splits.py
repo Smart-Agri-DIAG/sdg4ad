@@ -63,6 +63,8 @@ def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extensi
         output_prefix (str): The prefix to use for the output files.
         image_extension (str): The extension of the images.
     """
+    os.makedirs(output_dir, exist_ok=True)
+
     # Get the list of all the image paths in the good and bad folders
     good_images = get_image_list(os.path.join(data_dir, 'good'), image_extension)
     bad_images = get_image_list(os.path.join(data_dir, 'bad'), image_extension)
@@ -105,11 +107,9 @@ def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extensi
 
 
 if __name__ == '__main__':
-    data_dirs = ['data/CroppedPatchesDataset/PN/train',
-                 'data/CroppedPatchesDataset/RG/train']
-    output_dirs = ['data/Splits/PN/',
-                   'data/Splits/RG/']
-    n_splits = 5
+    data_dirs = ['data/CroppedPatches_PN/train']
+    output_dirs = ['data/Splits/PN/']
+    n_splits = 3
     output_prefix = 'split_'
     image_extension = '.jpg'
 
