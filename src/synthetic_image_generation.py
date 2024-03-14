@@ -11,7 +11,6 @@ from sklearn.decomposition import PCA
 
 # !{sys.executable} -m pip install 'git+https://github.com/facebookresearch/segment-anything.git'
 # !wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-# !wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
 from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 
 
@@ -43,34 +42,6 @@ def get_index_of_edgiest_grape(cfg, imgs):
 
 
 ### SAM ###
-
-def resize_image(image_path, target_resolution):
-    resolutions = {
-        "720p": (1280, 720),
-        "1080p": (1920, 1080),
-        "1440p": (2560, 1440),
-        "4k": (3840, 2160)
-    }
-
-    target_height, target_width = resolutions[target_resolution]
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    height, width = image.shape[:2]
-
-    aspect_ratio = width / height
-    target_ratio = target_width / target_height
-
-    if aspect_ratio > target_ratio:
-        new_width = target_width
-        new_height = int(new_width / aspect_ratio)
-    else:
-        new_height = target_height
-        new_width = int(new_height * aspect_ratio)
-
-    resized_image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
-
-    return resized_image
-
 
 def get_mask_generator(cfg):
     """
@@ -484,8 +455,11 @@ if __name__ == "__main__":
         for index, good_image_path in tqdm(enumerate(good_image_paths), desc="Processing images", total=num_good_images):
             bad_image_path = bad_image_paths[index % num_bad_images]
 
-            img_good = resize_image(good_image_path, cfg["target_size"])
-            img_bad = resize_image(bad_image_path, cfg["target_size"])
+            img_good = cv2.imread(good_image_path)
+            img_good = cv2.cvtColor(img_good, cv2.COLOR_BGR2RGB)
+
+            img_bad = cv2.imread(bad_image_path)
+            img_bad = cv2.cvtColor(img_bad, cv2.COLOR_BGR2RGB)
 
             new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
 
