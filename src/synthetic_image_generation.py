@@ -36,7 +36,7 @@ def get_index_of_edgiest_grape(cfg, imgs):
         num_edges_a = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_a"], cfg["upper_th_a"]))
         num_edges_b = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_b"], cfg["upper_th_b"]))
         non_black_pixels = np.count_nonzero(np.any(img != [0, 0, 0], axis=-1))
-        normalized_edge_count = (num_edges_a - num_edges_b) / (non_black_pixels)
+        normalized_edge_count = abs(num_edges_a - num_edges_b) / (non_black_pixels)
         edge_counts.append(normalized_edge_count)
     return np.argmax(edge_counts)
 
