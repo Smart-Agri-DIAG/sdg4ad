@@ -5,7 +5,6 @@ file_paths: ['data/Splits/PN/split_1_train.txt',
 output_paths: ["output/synthetic_images_PN/split_1",
               "output/synthetic_images_PN/split_2",
               "output/synthetic_images_PN/split_3"]
-plot: True  # If True, plots results for various stages of the pipeline
 
 # SAM
 sam_checkpoint: "weights/sam_vit_h_4b8939.pth"

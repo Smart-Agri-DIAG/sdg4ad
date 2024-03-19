@@ -21,7 +21,7 @@ def get_index_of_edgiest_grape(cfg, imgs):
     Returns the index of the edgiest grape in the list of images.
 
     It uses two Canny edge detectors with different thresholds and returns the index of the image
-    with the highest difference in edge count. The edge count is normalized by the image size.
+    with the highest difference in edge count. The edge count is normalized by the number of non-black pixels.
 
     Args:
         cfg (dict): Configuration dictionary.
@@ -161,14 +161,13 @@ def get_biggest_component(mask):
 
 ### Rotation and Scaling ###
 
-def get_rotation_matrix(mask, reference_mask, plot=False):
+def get_rotation_matrix(mask, reference_mask):
     """
     Returns the rotation matrix to align the principal axes of the mask with the reference mask.
 
     Args:
         mask (np.array): The mask to align.
         reference_mask (np.array): The reference mask.
-        plot (bool): Whether to plot the masks and the principal axes.
 
     Returns:
         np.array: The rotation matrix.
@@ -204,34 +203,10 @@ def get_rotation_matrix(mask, reference_mask, plot=False):
     moments = cv2.moments(mask)
     center = (moments['m10'] / moments['m00'], moments['m01'] / moments['m00'])
     rotation_matrix = cv2.getRotationMatrix2D(center, -rotation_angle, 1.0)  # positive angle -> counter-clockwise
-
-    if plot:
-        print("Principal axis:", principal_axis)
-        print("Reference principal axis:", ref_principal_axis)
-        print("Angle:", angle)
-        print("Reference angle:", ref_angle)
-        print("Rotation angle:", rotation_angle)
-
-        _, axs = plt.subplots(1, 2, figsize=(10, 5))
-
-        # Show the mask and the direction of the principal axes
-        axs[0].imshow(mask, cmap="gray")
-        axs[0].set_title("Mask")
-        axs[0].quiver(center[0], center[1], principal_axis[1], -principal_axis[0], color="green", scale=5)
-
-        # Show the reference mask and the direction of the principal axes
-        ref_moments = cv2.moments(reference_mask)
-        center_reference = (ref_moments['m10'] / ref_moments['m00'], ref_moments['m01'] / ref_moments['m00'])
-        axs[1].imshow(reference_mask, cmap="gray")
-        axs[1].set_title("Reference mask")
-        axs[1].quiver(center_reference[0], center_reference[1], ref_principal_axis[1], -
-                      ref_principal_axis[0], color="green", scale=5)
-        plt.show()
-
     return rotation_matrix
 
 
-def rotate_grape(image, mask, reference_mask, plot=False):
+def rotate_grape(image, mask, reference_mask):
     """
     Rotates the grape (image and mask) to align the principal axes of the mask with the reference mask.
 
@@ -239,33 +214,23 @@ def rotate_grape(image, mask, reference_mask, plot=False):
         image (np.array): The image of the grape.
         mask (np.array): The mask of the grape.
         reference_mask (np.array): The reference mask.
-        plot (bool): Whether to plot the principal axes.
 
     Returns:
         np.array: The rotated image.
         np.array: The rotated mask.
     """
     # Get rotation matrix
-    rotation_matrix = get_rotation_matrix(mask, reference_mask, plot)
+    rotation_matrix = get_rotation_matrix(mask, reference_mask)
 
     # Rotate the image
     rotated_image = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]), flags=cv2.INTER_CUBIC)
 
     # Rotate the mask
     rotated_mask = cv2.warpAffine(mask, rotation_matrix, (mask.shape[1], mask.shape[0]), flags=cv2.INTER_NEAREST)
-
-    if plot:
-        _, axs = plt.subplots(1, 2, figsize=(10, 5))
-        axs[0].imshow(rotated_image)
-        axs[0].set_title("Rotated image")
-        axs[1].imshow(rotated_mask, cmap="gray")
-        axs[1].set_title("Rotated mask")
-        plt.show()
-
     return rotated_image, rotated_mask
 
 
-def scale_grape(image, mask, reference_mask, plot=False):
+def scale_grape(image, mask, reference_mask):
     """
     Scales the grape (image and mask) to match the size of the reference mask.
 
@@ -273,7 +238,6 @@ def scale_grape(image, mask, reference_mask, plot=False):
         image (np.array): The image of the grape.
         mask (np.array): The mask of the grape.
         reference_mask (np.array): The reference mask.
-        plot (bool): Whether to plot the masks.
 
     Returns:
         np.array: The scaled image.
@@ -293,20 +257,12 @@ def scale_grape(image, mask, reference_mask, plot=False):
     # Scale the mask
     scaled_mask = cv2.resize(mask, (0, 0), fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_NEAREST)
 
-    if plot:
-        _, axs = plt.subplots(1, 2, figsize=(10, 5))
-        axs[0].imshow(scaled_image)
-        axs[0].set_title("Scaled image")
-        axs[1].imshow(scaled_mask, cmap="gray")
-        axs[1].set_title("Scaled mask")
-        plt.show()
-
     return scaled_image, scaled_mask
 
 
 ### Blending ###
 
-def PoissonBlending(source, destination, bad_mask, good_mask, cloning_type, plot=False):
+def PoissonBlending(source, destination, bad_mask, good_mask, cloning_type):
     """
     Blends the source image with the destination image using Poisson blending.
 
@@ -336,21 +292,8 @@ def PoissonBlending(source, destination, bad_mask, good_mask, cloning_type, plot
     bad_mask = cv2.warpAffine(bad_mask, M, (destination.shape[1], destination.shape[0]), flags=cv2.INTER_NEAREST)
     source = cv2.warpAffine(source, M, (destination.shape[1], destination.shape[0]))
 
-    if plot:
-        _, ax = plt.subplots(1, 2)
-        ax[0].imshow(source)
-        ax[0].set_title("Bad grape aligned")
-        ax[1].imshow(bad_mask)
-        ax[1].set_title("Bad mask aligned")
-        plt.show()
-
     # # Get the intersection of the aligned masks
     intersection = cv2.bitwise_and(bad_mask, good_mask)
-
-    if plot:
-        plt.imshow(intersection)
-        plt.title("Intersection")
-        plt.show()
 
     # Get the bounding box of the intersection
     _, _, w_inter, h_inter = cv2.boundingRect(intersection)
@@ -377,7 +320,6 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
         img_good (np.array): The image of good grapes.
         img_bad (np.array): The image of bad grapes.
         mask_generator (SamAutomaticMaskGenerator): The mask generator.
-        plot (bool): Whether to plot the intermediate steps.
 
     Returns:
         np.array: The synthetic image.
@@ -386,17 +328,6 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     good_masks = generate_masks(img_good, mask_generator, cfg["partition"])
     good_idx = random.randint(0, len(good_masks) - 1)
     good_mask = good_masks[good_idx].astype(np.uint8)
-
-    if cfg["plot"]:
-        good_grape = img_good * good_mask[:, :, None]
-        plt.figure(figsize=(10, 5))
-        plt.subplot(1, 2, 1)
-        plt.imshow(good_mask)
-        plt.title("Good mask")
-        plt.subplot(1, 2, 2)
-        plt.imshow(good_grape)
-        plt.title("Good grape")
-        plt.show()
 
     # Generate masks for the bad image and choose the edgiest one
     bad_masks = generate_masks(img_bad, mask_generator, cfg["partition"])
@@ -409,31 +340,14 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     bad_mask = get_biggest_component(bad_mask)
     good_mask = get_biggest_component(good_mask)
 
-    if cfg["plot"]:
-        plt.figure(figsize=(10, 5))
-        plt.subplot(1, 2, 1)
-        plt.imshow(bad_mask)
-        plt.title("Bad mask")
-        plt.subplot(1, 2, 2)
-        plt.imshow(bad_grape)
-        plt.title("Bad grape")
-        plt.show()
-
     # Rotate the bad grape to match the orientation of the good grape
-    bad_grape, bad_mask = rotate_grape(bad_grape, bad_mask, good_mask, cfg["plot"])
+    bad_grape, bad_mask = rotate_grape(bad_grape, bad_mask, good_mask)
 
     # Scale the bad grape to match the size of the good grape
-    bad_grape, bad_mask = scale_grape(bad_grape, bad_mask, good_mask, cfg["plot"])
+    bad_grape, bad_mask = scale_grape(bad_grape, bad_mask, good_mask)
 
     # Blend the bad grape onto the good image
-    blended = PoissonBlending(bad_grape, img_good, bad_mask, good_mask, cv2.NORMAL_CLONE, cfg["plot"])
-
-    if cfg["plot"]:
-        plt.figure(figsize=(10, 10))
-        plt.imshow(blended)
-        plt.title("Blended image")
-        plt.show()
-
+    blended = PoissonBlending(bad_grape, img_good, bad_mask, good_mask, cv2.NORMAL_CLONE)
     return blended
 
 
@@ -452,8 +366,8 @@ if __name__ == "__main__":
 
         num_good_images = len(good_image_paths)
         num_bad_images = len(bad_image_paths)
-        for index, good_image_path in tqdm(enumerate(good_image_paths), desc="Processing images", total=num_good_images):
-            bad_image_path = bad_image_paths[index % num_bad_images]
+        for index, bad_image_path in tqdm(enumerate(bad_image_paths), desc="Processing images", total=num_bad_images):
+            good_image_path = random.choice(good_image_paths)
 
             img_good = cv2.imread(good_image_path)
             img_good = cv2.cvtColor(img_good, cv2.COLOR_BGR2RGB)
