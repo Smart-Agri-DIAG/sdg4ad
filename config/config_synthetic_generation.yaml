@@ -9,12 +9,12 @@ output_paths: ["output/synthetic_images_PN/split_1",
 # SAM
 sam_checkpoint: "weights/sam_vit_h_4b8939.pth"
 model_type: "vit_h"
-device: "cuda"
+device: "cpu"
 points_per_side: 32
 
 # Canny
 sigma: 5
-partition: 50
+keep_ratio: 0.5
 lower_th_a: 80
 upper_th_a: 160
 lower_th_b: 80

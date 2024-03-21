@@ -58,47 +58,47 @@ def get_mask_generator(cfg):
     return mask_generator
 
 
-def filter_masks_by_area(masks, partition):
-    # Threhsholds
-    grapes_area = np.array([mask['area'] for mask in masks])
-    mu = np.mean(grapes_area)
-    sigma = np.std(grapes_area)
+def filter_masks_by_area(masks, keep_ratio):
+    """
+    Filters a list of masks based on their area. It returns the top masks based on the keep_ratio,
+    but only if their area is greater than the mean.
 
-    k_min = 0.1
-    k_max = 0
+    Args:
+        masks (list): A list of dictionaries where each dictionary represents a mask and has an 'area' key.
+        keep_ratio (float): The ratio of masks to keep. The value should be between 0 (exclusive) and 1 (inclusive).
 
-    percent_new_masks = 0
-    while percent_new_masks <= partition and k_max < 3:
-        new_masks = []
-        k_max += 0.1
-        min_mask_region_area = mu - k_min*sigma
-        max_mask_region_area = mu + k_max*sigma
+    Returns:
+        list: The filtered masks.
+    """
+    assert 0 < keep_ratio <= 1, "keep_ratio should be between 0 (exclusive) and 1 (inclusive)."
 
-        # Filtraggio
-        for elem in masks:
-            if elem['area'] > min_mask_region_area and elem['area'] < max_mask_region_area:
-                new_masks.append(elem)
+    # Sort masks by area
+    masks = sorted(masks, key=lambda x: x['area'])
 
-        len_new_masks = len(new_masks)
-        percent_new_masks = (len_new_masks*100)/len(masks)
+    # Find the index of the first mask with area >= mean area
+    areas = [mask['area'] for mask in masks]
+    mean_area = np.mean(areas)
+    index = np.searchsorted(areas, mean_area)
 
-    return new_masks
+    # Keep the top masks only if their area is greater than the mean area
+    index = max(index, int(len(masks) * (1-keep_ratio)))
+    return masks[index:]
 
 
-def generate_masks(image, mask_generator, partition):
+def generate_masks(image, mask_generator, keep_ratio):
     """
     Generates masks for the input image. The masks are filtered by area.
 
     Args:
         image (np.array): The input image.
         mask_generator (SamAutomaticMaskGenerator): The mask generator.
-        partition (float): The partition of the area of the masks to keep.
+        keep_ratio (float): The ratio of masks to keep. The value should be between 0 (exclusive) and 1 (inclusive).
 
     Returns:
         list: The generated masks.
     """
     masks = mask_generator.generate(image)
-    masks = filter_masks_by_area(masks, partition)
+    masks = filter_masks_by_area(masks, keep_ratio)
     masks = [mask['segmentation'] for mask in masks]
     return masks
 
@@ -325,12 +325,12 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
         np.array: The synthetic image.
     """
     # Generate masks for the good image and choose one randomly
-    good_masks = generate_masks(img_good, mask_generator, cfg["partition"])
+    good_masks = generate_masks(img_good, mask_generator, cfg["keep_ratio"])
     good_idx = random.randint(0, len(good_masks) - 1)
     good_mask = good_masks[good_idx].astype(np.uint8)
 
     # Generate masks for the bad image and choose the edgiest one
-    bad_masks = generate_masks(img_bad, mask_generator, cfg["partition"])
+    bad_masks = generate_masks(img_bad, mask_generator, cfg["keep_ratio"])
     bad_grapes = [img_bad * mask[:, :, None] for mask in bad_masks]
     bad_idx = get_index_of_edgiest_grape(cfg, bad_grapes)
     bad_mask = bad_masks[bad_idx].astype(np.uint8)
