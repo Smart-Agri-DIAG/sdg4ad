@@ -1,0 +1,6 @@
+outs:
+- md5: 52a839e69afc95244522ce6262a921bb.dir
+  size: 240681902
+  nfiles: 635
+  hash: md5
+  path: Anomaly_PN_patches

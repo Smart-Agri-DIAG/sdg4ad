@@ -107,11 +107,11 @@ def generate_splits(data_dir, output_dir, n_splits, output_prefix, image_extensi
 
 
 if __name__ == '__main__':
-    data_dirs = ['data/CroppedPatches_PN/train']
+    data_dirs = ['data/Anomaly_PN_patches/train/']
     output_dirs = ['data/Splits/PN/']
     n_splits = 3
     output_prefix = 'split_'
-    image_extension = '.jpg'
+    image_extension = '.png'
 
     # Set the seed for reproducibility
     random.seed(42)
@@ -123,14 +123,14 @@ if __name__ == '__main__':
         print('Done!\n')
 
     # Generate file list for test set
-    data_dir = 'data/CroppedPatches_PN/test'
-    output_dir = 'data/Splits/'
+    # data_dir = 'data/CroppedPatches_PN/test'
+    # output_dir = 'data/Splits/'
 
-    # Get the list of all the image paths in the good and bad folders
-    good_images = get_image_list(os.path.join(data_dir, 'good'), image_extension)
-    bad_images = get_image_list(os.path.join(data_dir, 'bad'), image_extension)
+    # # Get the list of all the image paths in the good and bad folders
+    # good_images = get_image_list(os.path.join(data_dir, 'good'), image_extension)
+    # bad_images = get_image_list(os.path.join(data_dir, 'bad'), image_extension)
 
-    all_images = good_images + bad_images
-    all_labels = [0] * len(good_images) + [1] * len(bad_images)
+    # all_images = good_images + bad_images
+    # all_labels = [0] * len(good_images) + [1] * len(bad_images)
 
-    write_split(all_images, all_labels, os.path.join(output_dir, 'PN_test.txt'))
+    # write_split(all_images, all_labels, os.path.join(output_dir, 'PN_test.txt'))
