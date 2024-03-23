@@ -332,7 +332,7 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     bad_masks = generate_masks(img_bad, mask_generator, cfg["keep_ratio"])
 
     # Sample 3 good masks
-    good_indices = random.sample(range(len(good_masks)), 3)
+    good_indices = random.choices(range(len(good_masks)), 3)
     good_masks = [good_masks[i].astype(np.uint8) for i in good_indices]
 
     # Sample 3 bad masks
