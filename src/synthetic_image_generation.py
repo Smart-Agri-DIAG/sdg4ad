@@ -16,9 +16,9 @@ from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 
 ### Canny ###
 
-def get_index_of_edgiest_grape(cfg, imgs):
+def get_indices_of_edgiest_grapes(cfg, imgs, N):
     """
-    Returns the index of the edgiest grape in the list of images.
+    Returns the indices of the N edgiest grapes in the list of images.
 
     It uses two Canny edge detectors with different thresholds and returns the index of the image
     with the highest difference in edge count. The edge count is normalized by the number of non-black pixels.
@@ -26,9 +26,10 @@ def get_index_of_edgiest_grape(cfg, imgs):
     Args:
         cfg (dict): Configuration dictionary.
         imgs (list): List of images.
+        N (int): Number of edgiest grapes to return.
 
     Returns:
-        int: Index of the edgiest grape.
+        list: Indices of the N edgiest grapes.
     """
     edge_counts = []
     for img in imgs:
@@ -38,7 +39,9 @@ def get_index_of_edgiest_grape(cfg, imgs):
         non_black_pixels = np.count_nonzero(np.any(img != [0, 0, 0], axis=-1))
         normalized_edge_count = abs(num_edges_a - num_edges_b) / (non_black_pixels)
         edge_counts.append(normalized_edge_count)
-    return np.argmax(edge_counts)
+
+    indices = np.argsort(edge_counts)[::-1][:N]
+    return indices.tolist()
 
 
 ### SAM ###
@@ -324,31 +327,34 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     Returns:
         np.array: The synthetic image.
     """
-    # Generate masks for the good image and choose one randomly
+    # Generate masks
     good_masks = generate_masks(img_good, mask_generator, cfg["keep_ratio"])
-    good_idx = random.randint(0, len(good_masks) - 1)
-    good_mask = good_masks[good_idx].astype(np.uint8)
-
-    # Generate masks for the bad image and choose the edgiest one
     bad_masks = generate_masks(img_bad, mask_generator, cfg["keep_ratio"])
+
+    # Sample 3 good masks
+    good_indices = random.sample(range(len(good_masks)), 3)
+    good_masks = [good_masks[i].astype(np.uint8) for i in good_indices]
+
+    # Sample 3 bad masks
     bad_grapes = [img_bad * mask[:, :, None] for mask in bad_masks]
-    bad_idx = get_index_of_edgiest_grape(cfg, bad_grapes)
-    bad_mask = bad_masks[bad_idx].astype(np.uint8)
-    bad_grape = bad_grapes[bad_idx]
+    bad_indices = get_indices_of_edgiest_grapes(cfg, bad_grapes, 3)
+    bad_masks = [bad_masks[i].astype(np.uint8) for i in bad_indices]
+    bad_grapes = [bad_grapes[i] for i in bad_indices]
 
-    # Check if the masks are made of more than one connected component
-    bad_mask = get_biggest_component(bad_mask)
-    good_mask = get_biggest_component(good_mask)
+    for good_mask, bad_mask, bad_grape in zip(good_masks, bad_masks, bad_grapes):
+        # Check if the masks are made of more than one connected component
+        bad_mask = get_biggest_component(bad_mask)
+        good_mask = get_biggest_component(good_mask)
 
-    # Rotate the bad grape to match the orientation of the good grape
-    bad_grape, bad_mask = rotate_grape(bad_grape, bad_mask, good_mask)
+        # Rotate the bad grape to match the orientation of the good grape
+        bad_grape, bad_mask = rotate_grape(bad_grape, bad_mask, good_mask)
 
-    # Scale the bad grape to match the size of the good grape
-    bad_grape, bad_mask = scale_grape(bad_grape, bad_mask, good_mask)
+        # Scale the bad grape to match the size of the good grape
+        bad_grape, bad_mask = scale_grape(bad_grape, bad_mask, good_mask)
 
-    # Blend the bad grape onto the good image
-    blended = PoissonBlending(bad_grape, img_good, bad_mask, good_mask, cv2.NORMAL_CLONE)
-    return blended
+        # Blend the bad grape onto the good image
+        img_good = PoissonBlending(bad_grape, img_good, bad_mask, good_mask, cv2.NORMAL_CLONE)
+    return img_good
 
 
 if __name__ == "__main__":
