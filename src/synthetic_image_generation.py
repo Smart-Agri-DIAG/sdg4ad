@@ -41,6 +41,7 @@ def get_indices_of_edgiest_grapes(cfg, imgs, N):
         edge_counts.append(normalized_edge_count)
 
     indices = np.argsort(edge_counts)[::-1][:N]
+    indices = np.resize(indices, N)  # In case there are less than N grapes
     return indices.tolist()
 
 
