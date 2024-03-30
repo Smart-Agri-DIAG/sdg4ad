@@ -57,11 +57,11 @@ def train(cfg):
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg["lr"])
     loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(train_dataset.pos_weight).to(device))
     scaler = GradScaler() if cfg["mixed_precision"] else None
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(0, cfg["epochs"]-10))
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer, max_lr=cfg["lr"], epochs=cfg["epochs"], steps_per_epoch=len(train_dataloader))
 
     best_val_loss = float("inf")
     best_epoch = 0
-    best_balanced_accuracy = 0.0
 
     for epoch in range(cfg["epochs"]):
         train_loss = train_1_epoch(model, optimizer, loss_fn, train_dataloader, device, scaler)
@@ -78,22 +78,20 @@ def train(cfg):
         print(f"    TP: {val_metrics['tp']}, TN: {val_metrics['tn']}, FP: {val_metrics['fp']}, FN: {val_metrics['fn']}")
         print(f"Learning Rate: {optimizer.param_groups[0]['lr']}")
 
-        if (val_metrics["balanced_accuracy"] > best_balanced_accuracy or
-                val_metrics["balanced_accuracy"] == best_balanced_accuracy and val_metrics["loss"] < best_val_loss):
+        if (val_metrics["loss"] < best_val_loss):
             best_epoch = epoch + 1
             best_val_loss = val_metrics["loss"]
-            best_balanced_accuracy = val_metrics["balanced_accuracy"]
 
             torch.save(model.state_dict(), os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
             wandb.save(os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
 
             # Log summary metrics at best epoch
-            wandb.run.summary["Best Epoch"] = best_epoch
-            wandb.run.summary["Best Validation Loss"] = val_metrics["loss"]
-            wandb.run.summary["Best Balanced Accuracy"] = val_metrics["balanced_accuracy"]
-            wandb.run.summary["Best Precision"] = val_metrics["precision"]
-            wandb.run.summary["Best Recall"] = val_metrics["recall"]
-            wandb.run.summary["Best F1-score"] = val_metrics["f1_score"]
+            wandb.run.summary["Best Model Epoch"] = best_epoch
+            wandb.run.summary["Best Model Validation Loss"] = val_metrics["loss"]
+            wandb.run.summary["Best Model Balanced Accuracy"] = val_metrics["balanced_accuracy"]
+            wandb.run.summary["Best Model Precision"] = val_metrics["precision"]
+            wandb.run.summary["Best Model Recall"] = val_metrics["recall"]
+            wandb.run.summary["Best Model F1-score"] = val_metrics["f1_score"]
 
         wandb.log({
             "Train Loss": train_loss,
