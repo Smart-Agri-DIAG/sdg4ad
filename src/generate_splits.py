@@ -12,20 +12,18 @@ def get_image_list(data_dir, extension='.jpg'):
     """
     Retrieves a list of file paths of images from a specified directory with a given file extension.
 
-    This function iterates over all files in a specified directory. The subdirectory
-    is determined by the class label. It then filters these files based on the file extension and returns a list
-    of the file paths for these files.
+    This function iterates over all files in a specified directory. It then filters these files based on the file
+    extension and returns a list of the file paths for these files.
 
     Args:
         data_dir (str): The path to the data directory.
-        class_label (str): The class label of the images.
         extension (str, optional): The extension of the images. Defaults to '.jpg'.
 
     Returns:
         list: A list of file paths that match the given class label and file extension.
     """
     try:
-        return [os.path.join(data_dir, file) for file in os.listdir(data_dir) if file.endswith(extension)]
+        return sorted([os.path.join(data_dir, file) for file in os.listdir(data_dir) if file.endswith(extension)])
     except FileNotFoundError:
         print(f"The directory {data_dir} does not exist.")
         return []
