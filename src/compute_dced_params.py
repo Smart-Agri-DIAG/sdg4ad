@@ -1,12 +1,10 @@
 """
-Edge statistics module finds the best canny edge detection parameters for classifying the grape patches into bad
-and good.
+compute_dced_params: finds the best parameters for the double canny edge detection so that it best classifies
+the patches into bad and good.
 
-It iterates over the parameter space and computes the edge statistics for each parameter combination.
-The edge statistics are the average, the standard deviation, and the hystogram of the number of edges in the patches.
-A threshold is applied to the number of edges to decide if the patch is good or bad.
-The classification balanced accuracy is computed for each parameter combination on the validation set and the best
-parameters are returned.
+It iterates over the parameter space and computes the best threshold for the train set. The best threshold is the one
+that achieves the best balanced accuracy. The threshold is then applied to the validation set and the balanced accuracy
+is computed. The best parameters are saved to a configuration file. This process is repeated for each split.
 """
 
 import cv2
