@@ -86,7 +86,7 @@ def get_best_threshold(good_img_paths, bad_img_paths, kernel_size, lower_th_wide
     return best_threshold
 
 
-def worker(split, verbose=False):
+def worker(split, kernel_size, verbose=False):
     train_file_list_path = f"data/Splits/PN/split_{split}_train.txt"
     with open(train_file_list_path, 'r') as file:
         file_list = file.readlines()
@@ -102,7 +102,6 @@ def worker(split, verbose=False):
     if verbose:
         print(f"Finding best parameters for split {split}\n")
 
-    best_kernel_size = 0
     best_val_balanced_accuracy = 0
     best_lower_th_wide = 0
     best_upper_th_wide = 0
@@ -111,44 +110,41 @@ def worker(split, verbose=False):
     best_val_metrics = None
 
     # Parameter sweep for the best thresholds
-    for kernel_size in [3, 5, 7]:
-        for lower_th_wide in range(0, 255, 25):
-            for upper_th_wide in range(lower_th_wide + 25, 255, 25):
-                for lower_th_narrow in range(lower_th_wide, 255, 25):
-                    for upper_th_narrow in range(max(upper_th_wide + 25, lower_th_narrow + 25), 255, 25):
-                        print(f"Split {split}. Trying parameters:")
-                        print(f"kernel_size={kernel_size}")
-                        print(f"lower_th_wide={lower_th_wide}, upper_th_wide={upper_th_wide}")
-                        print(f"lower_th_narrow={lower_th_narrow}, upper_th_narrow={upper_th_narrow}\n")
+    for lower_th_wide in range(0, 255, 25):
+        for upper_th_wide in range(lower_th_wide + 25, 255, 25):
+            for lower_th_narrow in range(lower_th_wide, 255, 25):
+                for upper_th_narrow in range(max(upper_th_wide + 25, lower_th_narrow + 25), 255, 25):
+                    print(f"Split {split}. Trying parameters:")
+                    print(f"kernel_size={kernel_size}")
+                    print(f"lower_th_wide={lower_th_wide}, upper_th_wide={upper_th_wide}")
+                    print(f"lower_th_narrow={lower_th_narrow}, upper_th_narrow={upper_th_narrow}\n")
 
-                        threshold = get_best_threshold(good_img_paths, bad_img_paths, kernel_size, lower_th_wide,
-                                                       upper_th_wide, lower_th_narrow, upper_th_narrow, verbose=verbose)
+                    threshold = get_best_threshold(good_img_paths, bad_img_paths, kernel_size, lower_th_wide,
+                                                   upper_th_wide, lower_th_narrow, upper_th_narrow, verbose=verbose)
 
-                        # Apply the best threshold to the validation set
-                        val_good_edge_percentages = get_edge_percentages(val_good_img_paths, kernel_size, lower_th_wide,
-                                                                         upper_th_wide, lower_th_narrow, upper_th_narrow,
-                                                                         verbose)
-                        val_bad_edge_percentages = get_edge_percentages(val_bad_img_paths, kernel_size, lower_th_wide,
-                                                                        upper_th_wide, lower_th_narrow, upper_th_narrow,
-                                                                        verbose)
-                        val_metrics = compute_metrics(val_good_edge_percentages,
-                                                      val_bad_edge_percentages, threshold)
-                        if verbose:
-                            print(f"Validation results:")
-                            print_metrics(val_metrics)
+                    # Apply the best threshold to the validation set
+                    val_good_edge_percentages = get_edge_percentages(val_good_img_paths, kernel_size, lower_th_wide,
+                                                                     upper_th_wide, lower_th_narrow, upper_th_narrow,
+                                                                     verbose)
+                    val_bad_edge_percentages = get_edge_percentages(val_bad_img_paths, kernel_size, lower_th_wide,
+                                                                    upper_th_wide, lower_th_narrow, upper_th_narrow,
+                                                                    verbose)
+                    val_metrics = compute_metrics(val_good_edge_percentages,
+                                                  val_bad_edge_percentages, threshold)
+                    if verbose:
+                        print(f"Validation results:")
+                        print_metrics(val_metrics)
 
-                        if val_metrics['balanced_accuracy'] > best_val_balanced_accuracy:
-                            best_val_balanced_accuracy = val_metrics['balanced_accuracy']
-                            best_kernel_size = kernel_size
-                            best_lower_th_wide = lower_th_wide
-                            best_upper_th_wide = upper_th_wide
-                            best_lower_th_narrow = lower_th_narrow
-                            best_upper_th_narrow = upper_th_narrow
-                            best_val_metrics = val_metrics
+                    if val_metrics['balanced_accuracy'] > best_val_balanced_accuracy:
+                        best_val_balanced_accuracy = val_metrics['balanced_accuracy']
+                        best_lower_th_wide = lower_th_wide
+                        best_upper_th_wide = upper_th_wide
+                        best_lower_th_narrow = lower_th_narrow
+                        best_upper_th_narrow = upper_th_narrow
+                        best_val_metrics = val_metrics
 
     print(f"Best validation balanced accuracy: {best_val_balanced_accuracy}")
-    print(f"Best parameters for split {split}:")
-    print(f"Kernel size: {best_kernel_size}")
+    print(f"Best parameters for split {split} and kernel size {kernel_size}")
     print(f"Lower threshold wide: {best_lower_th_wide}")
     print(f"Upper threshold wide: {best_upper_th_wide}")
     print(f"Lower threshold narrow: {best_lower_th_narrow}")
@@ -156,7 +152,7 @@ def worker(split, verbose=False):
 
     # Save the best parameters to a configuration file
     config = {
-        'kernel_size': best_kernel_size,
+        'kernel_size': kernel_size,
         'lower_th_wide': best_lower_th_wide,
         'upper_th_wide': best_upper_th_wide,
         'lower_th_narrow': best_lower_th_narrow,
@@ -167,13 +163,15 @@ def worker(split, verbose=False):
         'val_specificity': str(best_val_metrics['specificity']),
         'val_balanced_accuracy': str(best_val_metrics['balanced_accuracy'])
     }
-    with open(f"config/edge_statistics_split_{split}.yaml", 'w') as file:
+    with open(f"config/edge_statistics_split_{split}_kernel_size_{kernel_size}.yaml", 'w') as file:
         yaml.dump(config, file)
 
 
 if __name__ == '__main__':
     splits = [1, 2, 3]
+    kernel_sizes = [3, 5, 7]
     verbose = False
+    tasks = [(split, kernel_size, verbose) for split in splits for kernel_size in kernel_sizes]
     with Pool() as p:
-        p.starmap(worker, [(split, verbose) for split in splits])
+        p.starmap(worker, tasks)
     print("Done!")
