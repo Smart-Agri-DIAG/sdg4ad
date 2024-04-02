@@ -52,10 +52,17 @@ def train(cfg):
     val_dataloader = torch.utils.data.DataLoader(
         val_dataset, batch_size=cfg["batch_size"], shuffle=False, num_workers=cfg["num_workers"])
 
+    test_dataset = BinaryClassificationDataset(cfg["test_path"], train=False)
+    test_dataloader = torch.utils.data.DataLoader(
+        test_dataset, batch_size=cfg["batch_size"], shuffle=False, num_workers=cfg["num_workers"])
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = BinaryClassifier().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg["lr"])
-    loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(train_dataset.pos_weight).to(device))
+    optimizer = torch.optim.AdamW(model.parameters(), lr=cfg["lr"], weight_decay=cfg["weight_decay"])
+    if cfg["weighted_loss"]:
+        loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(train_dataset.pos_weight).to(device))
+    else:
+        loss_fn = torch.nn.BCEWithLogitsLoss()
     scaler = GradScaler() if cfg["mixed_precision"] else None
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer, max_lr=cfg["lr"], epochs=cfg["epochs"], steps_per_epoch=len(train_dataloader))
@@ -63,12 +70,12 @@ def train(cfg):
     best_val_loss = float("inf")
     best_epoch = 0
 
-    for epoch in range(cfg["epochs"]):
+    for epoch in range(1, cfg["epochs"]+1):
         train_loss = train_1_epoch(model, optimizer, loss_fn, train_dataloader, device, scaler)
         val_metrics = validate(model, loss_fn, val_dataloader, device)
         scheduler.step()
 
-        print(f"\nEpoch {epoch + 1}, Train Loss: {train_loss:.4f}")
+        print(f"\nEpoch {epoch}, Train Loss: {train_loss:.4f}")
         print("Validation metrics:")
         print(f"    Loss: {val_metrics['loss']:.4f}")
         print(f"    Precision: {val_metrics['precision']:.4f}")
@@ -77,21 +84,6 @@ def train(cfg):
         print(f"    Balanced Accuracy: {val_metrics['balanced_accuracy']:.4f}")
         print(f"    TP: {val_metrics['tp']}, TN: {val_metrics['tn']}, FP: {val_metrics['fp']}, FN: {val_metrics['fn']}")
         print(f"Learning Rate: {optimizer.param_groups[0]['lr']}")
-
-        if (val_metrics["loss"] < best_val_loss):
-            best_epoch = epoch + 1
-            best_val_loss = val_metrics["loss"]
-
-            torch.save(model.state_dict(), os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
-            wandb.save(os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
-
-            # Log summary metrics at best epoch
-            wandb.run.summary["Best Model Epoch"] = best_epoch
-            wandb.run.summary["Best Model Validation Loss"] = val_metrics["loss"]
-            wandb.run.summary["Best Model Balanced Accuracy"] = val_metrics["balanced_accuracy"]
-            wandb.run.summary["Best Model Precision"] = val_metrics["precision"]
-            wandb.run.summary["Best Model Recall"] = val_metrics["recall"]
-            wandb.run.summary["Best Model F1-score"] = val_metrics["f1_score"]
 
         wandb.log({
             "Train Loss": train_loss,
@@ -105,8 +97,41 @@ def train(cfg):
             "Validation FP": val_metrics["fp"],
             "Validation FN": val_metrics["fn"],
             "Learning Rate": optimizer.param_groups[0]["lr"],
-        }, step=epoch + 1)
+        }, step=epoch)
 
+        if (val_metrics["loss"] < best_val_loss):
+            best_epoch = epoch
+            best_val_loss = val_metrics["loss"]
+
+            torch.save(model.state_dict(), os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
+            wandb.save(os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
+
+            # Log summary metrics at best epoch
+            wandb.run.summary["Best Model Epoch"] = best_epoch
+            wandb.run.summary["Best Model Validation Loss"] = val_metrics["loss"]
+            wandb.run.summary["Best Model Balanced Accuracy"] = val_metrics["balanced_accuracy"]
+            wandb.run.summary["Best Model Precision"] = val_metrics["precision"]
+            wandb.run.summary["Best Model Recall"] = val_metrics["recall"]
+            wandb.run.summary["Best Model F1-score"] = val_metrics["f1_score"]
+        elif cfg["early_stopping"] and (epoch - best_epoch) >= cfg["patience"]:
+            print(f"Early stopping at epoch {epoch}")
+            break
+
+    # Test best model
+    model.load_state_dict(torch.load(os.path.join(cfg["checkpoint_dir"], "best_model.pth")))
+    test_metrics = validate(model, loss_fn, test_dataloader, device)
+    print("Test metrics:")
+    print(f"    Loss: {test_metrics['loss']:.4f}")
+    print(f"    Precision: {test_metrics['precision']:.4f}")
+    print(f"    Recall: {test_metrics['recall']:.4f}")
+    print(f"    F1-score: {test_metrics['f1_score']:.4f}")
+    print(f"    Balanced Accuracy: {test_metrics['balanced_accuracy']:.4f}")
+    print(f"    TP: {test_metrics['tp']}, TN: {test_metrics['tn']}, FP: {test_metrics['fp']}, FN: {test_metrics['fn']}")
+    wandb.run.summary["Test Loss"] = test_metrics["loss"]
+    wandb.run.summary["Test Balanced Accuracy"] = test_metrics["balanced_accuracy"]
+    wandb.run.summary["Test Precision"] = test_metrics["precision"]
+    wandb.run.summary["Test Recall"] = test_metrics["recall"]
+    wandb.run.summary["Test F1-score"] = test_metrics["f1_score"]
     wandb.finish()
 
 

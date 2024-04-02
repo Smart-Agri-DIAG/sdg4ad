@@ -1,11 +1,16 @@
 seed: 42
 train_splits_path: data/Splits/PN/
 val_splits_path: data/Splits/PN/
+test_path: data/Splits/PN_test.txt
 split: 1
 epochs: 100
 lr: 0.0001
+weight_decay: 0.00001
 batch_size: 16
 num_workers: 4
+weighted_loss: False
+early_stopping: True
+patience: 10
 mixed_precision: False
 checkpoint_dir: output/checkpoints/
 wandb_mode: online  # offline, online, disabled
