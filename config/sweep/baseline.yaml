@@ -8,7 +8,13 @@ metric:
 parameters:
   lr:
     values: [0.001, 0.0001, 0.00001, 0.000001]
+  weight_decay:
+    values: [0.001, 0.0001, 0.00001, 0.000001]
   split:
     values: [1, 2, 3]
   batch_size:
-    value: 32
+    value: 64
+  weighted_loss:
+    values: [True, False]
+  early_stopping:
+    value: True
