@@ -116,11 +116,11 @@ def worker(split, verbose=False):
             for upper_th_wide in range(lower_th_wide + 25, 255, 25):
                 for lower_th_narrow in range(lower_th_wide, 255, 25):
                     for upper_th_narrow in range(max(upper_th_wide + 25, lower_th_narrow + 25), 255, 25):
-                        if verbose:
-                            print(f"Trying parameters:")
-                            print(f"kernel_size={kernel_size}")
-                            print(f"lower_th_wide={lower_th_wide}, upper_th_wide={upper_th_wide}")
-                            print(f"lower_th_narrow={lower_th_narrow}, upper_th_narrow={upper_th_narrow}\n")
+                        print(f"Split {split}. Trying parameters:")
+                        print(f"kernel_size={kernel_size}")
+                        print(f"lower_th_wide={lower_th_wide}, upper_th_wide={upper_th_wide}")
+                        print(f"lower_th_narrow={lower_th_narrow}, upper_th_narrow={upper_th_narrow}\n")
+
                         threshold = get_best_threshold(good_img_paths, bad_img_paths, kernel_size, lower_th_wide,
                                                        upper_th_wide, lower_th_narrow, upper_th_narrow, verbose=verbose)
 
@@ -146,13 +146,13 @@ def worker(split, verbose=False):
                             best_upper_th_narrow = upper_th_narrow
                             best_val_metrics = val_metrics
 
-    if verbose:
-        print(f"Best validation balanced accuracy: {best_val_balanced_accuracy}")
-        print(f"Best kernel size: {best_kernel_size}")
-        print(f"Lower threshold wide: {best_lower_th_wide}")
-        print(f"Upper threshold wide: {best_upper_th_wide}")
-        print(f"Lower threshold narrow: {best_lower_th_narrow}")
-        print(f"Upper threshold narrow: {best_upper_th_narrow}")
+    print(f"Best validation balanced accuracy: {best_val_balanced_accuracy}")
+    print(f"Best parameters for split {split}:")
+    print(f"Kernel size: {best_kernel_size}")
+    print(f"Lower threshold wide: {best_lower_th_wide}")
+    print(f"Upper threshold wide: {best_upper_th_wide}")
+    print(f"Lower threshold narrow: {best_lower_th_narrow}")
+    print(f"Upper threshold narrow: {best_upper_th_narrow}")
 
     # Save the best parameters to a configuration file
     config = {
