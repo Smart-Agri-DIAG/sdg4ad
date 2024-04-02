@@ -10,7 +10,7 @@ batch_size: 16
 num_workers: 4
 weighted_loss: False
 early_stopping: True
-patience: 10
+patience: 20
 mixed_precision: False
 checkpoint_dir: output/checkpoints/
 wandb_mode: online  # offline, online, disabled
