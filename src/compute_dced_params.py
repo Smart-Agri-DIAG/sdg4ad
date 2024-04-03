@@ -165,7 +165,7 @@ def worker(split, kernel_size, verbose=False):
         'val_specificity': str(best_val_metrics['specificity']),
         'val_balanced_accuracy': str(best_val_metrics['balanced_accuracy'])
     }
-    with open(f"config/edge_statistics_split_{split}_kernel_size_{kernel_size}.yaml", 'w') as file:
+    with open(f"config/dced_params/dced_params_split_{split}_kernel_size_{kernel_size}.yaml", 'w') as file:
         yaml.dump(config, file)
 
 

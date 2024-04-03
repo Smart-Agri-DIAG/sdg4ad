@@ -3,7 +3,7 @@ project: sdg4ad
 entity: canopies-diag
 method: grid
 metric:
-  name: Validation Balanced Accuracy
+  name: Best Model Balanced Accuracy
   goal: maximize
 parameters:
   lr:
