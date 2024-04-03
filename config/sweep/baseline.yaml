@@ -14,7 +14,5 @@ parameters:
     values: [1, 2, 3]
   batch_size:
     value: 64
-  weighted_loss:
-    values: [True, False]
   early_stopping:
     value: True
