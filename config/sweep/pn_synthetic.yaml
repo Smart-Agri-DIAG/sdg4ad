@@ -8,6 +8,8 @@ metric:
 parameters:
   lr:
     value: 0.00001
+  weight_decay:
+    value: 0.0
   train_splits_path:
     values: ["data/Splits/PN/",
              "data/Splits/PN_addition_100/",
