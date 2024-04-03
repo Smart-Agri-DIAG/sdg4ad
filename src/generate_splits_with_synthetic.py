@@ -134,6 +134,7 @@ if __name__ == '__main__':
                        'data/Splits/PN/split_2_train.txt',
                        'data/Splits/PN/split_3_train.txt']
     output_root = 'data/Splits/'
+    img_extension = '.png'
 
     # Set the seed for reproducibility
     random.seed(42)
@@ -141,6 +142,6 @@ if __name__ == '__main__':
 
     for data_dir, original_split in zip(data_dirs, original_splits):
         print(f'Generating splits for {data_dir}...')
-        generate_splits_with_synthetic(data_dir, original_split, output_root)
+        generate_splits_with_synthetic(data_dir, original_split, output_root, img_extension)
         print("-----------------------------------\n")
     print('Done!\n')
