@@ -362,17 +362,17 @@ if __name__ == "__main__":
     cfg_paths = ["config/synthetic_generation/config_synthetic_generation_split_1.yaml",
                  "config/synthetic_generation/config_synthetic_generation_split_2.yaml",
                  "config/synthetic_generation/config_synthetic_generation_split_3.yaml"]
-    
+
     for cfg_path in cfg_paths:
-        cfg = load_config("config/config_synthetic_generation.yaml")
+        cfg = load_config(cfg_path)
         print_config(cfg)
-        set_seed(cfg["seed"])
+        set_seed(cfg['seed'])
 
         mask_generator = get_mask_generator(cfg)
 
-        print(f"Generating synthetic images for {cfg["file_path"]}...")
-        good_image_paths, bad_image_paths = read_file_list(cfg["file_path"])
-        log_folder = os.path.join(cfg["output_path"], "logs")
+        print(f"Generating synthetic images for {cfg['file_path']}...")
+        good_image_paths, bad_image_paths = read_file_list(cfg['file_path'])
+        log_folder = os.path.join(cfg['output_path'], "logs")
         os.makedirs(log_folder, exist_ok=True)
 
         num_good_images = len(good_image_paths)
@@ -389,6 +389,6 @@ if __name__ == "__main__":
             new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
 
             write_log(index, good_image_path, bad_image_path, log_folder)
-            imageio.imsave(f"{cfg["output_path"]}/anomaly_{index}.jpg", new_img)
+            imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.jpg", new_img)
 
         print("Synthetic images generated successfully!")
