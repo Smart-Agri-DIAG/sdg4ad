@@ -33,11 +33,11 @@ def get_indices_of_edgiest_grapes(cfg, imgs, N):
     """
     edge_counts = []
     for img in imgs:
-        img = cv2.GaussianBlur(img, (cfg["sigma"], cfg["sigma"]), 0)
-        num_edges_a = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_a"], cfg["upper_th_a"]))
-        num_edges_b = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_b"], cfg["upper_th_b"]))
+        img = cv2.GaussianBlur(img, (cfg["kernel_size"], cfg["kernel_size"]), 0)
+        num_edges_wide = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_wide"], cfg["upper_th_wide"]))
+        num_edges_narrow = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_narrow"], cfg["upper_th_narrow"]))
         non_black_pixels = np.count_nonzero(np.any(img != [0, 0, 0], axis=-1))
-        normalized_edge_count = abs(num_edges_a - num_edges_b) / (non_black_pixels)
+        normalized_edge_count = abs(num_edges_wide - num_edges_narrow) / (non_black_pixels)
         edge_counts.append(normalized_edge_count)
 
     indices = np.argsort(edge_counts)[::-1][:N]
