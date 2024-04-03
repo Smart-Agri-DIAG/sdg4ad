@@ -13,7 +13,7 @@ from data import BinaryClassificationDataset
 from models import BinaryClassifier
 
 
-def train_1_epoch(model, optimizer, loss_fn, dataloader, device, scaler=None):
+def train_1_epoch(model, dataloader, loss_fn, optimizer, scheduler, device, scaler=None):
     model.train()
     total_loss = 0.0
     progress_bar = tqdm(total=len(dataloader), desc="Training")
@@ -33,6 +33,7 @@ def train_1_epoch(model, optimizer, loss_fn, dataloader, device, scaler=None):
         else:
             loss.backward()
             optimizer.step()
+        scheduler.step()
 
         total_loss += loss.item()
         progress_bar.set_postfix({"Batch loss": f"{loss.item():.3f}"})
@@ -71,9 +72,8 @@ def train(cfg):
     best_epoch = 0
 
     for epoch in range(1, cfg["epochs"]+1):
-        train_loss = train_1_epoch(model, optimizer, loss_fn, train_dataloader, device, scaler)
-        val_metrics = validate(model, loss_fn, val_dataloader, device)
-        scheduler.step()
+        train_loss = train_1_epoch(model, train_dataloader, loss_fn, optimizer, scheduler, device, scaler)
+        val_metrics = validate(model, val_dataloader, loss_fn, device)
 
         print(f"\nEpoch {epoch}, Train Loss: {train_loss:.4f}")
         print("Validation metrics:")
@@ -119,7 +119,7 @@ def train(cfg):
 
     # Test best model
     model.load_state_dict(torch.load(os.path.join(cfg["checkpoint_dir"], "best_model.pth")))
-    test_metrics = validate(model, loss_fn, test_dataloader, device)
+    test_metrics = validate(model, test_dataloader, loss_fn, device)
     print("Test metrics:")
     print(f"    Loss: {test_metrics['loss']:.4f}")
     print(f"    Precision: {test_metrics['precision']:.4f}")
@@ -135,7 +135,7 @@ def train(cfg):
     wandb.finish()
 
 
-def validate(model, loss_fn, dataloader, device):
+def validate(model, dataloader, loss_fn, device):
     model.eval()
     total_loss = 0.0
     all_preds = []
