@@ -315,6 +315,44 @@ def PoissonBlending(source, destination, bad_mask, good_mask, cloning_type):
     return blended
 
 
+def naive_blending(source, destination, bad_mask, good_mask):
+    """
+    Blends the source image with the destination image using naive cloning.
+
+    Args:
+        source (np.array): The source image.
+        destination (np.array): The destination image.
+        bad_mask (np.array): The mask of the bad grape.
+        good_mask (np.array): The mask of the good grape.
+
+    Returns:
+        np.array: The blended image.
+    """
+    # Get dimensions of the bad mask
+    x_bad, y_bad, w_bad, h_bad = cv2.boundingRect(bad_mask)
+    center_bad = (x_bad + w_bad // 2, y_bad + h_bad // 2)
+
+    # Set the center for the blending to be the centroid of the good grape
+    moments = cv2.moments(good_mask)
+    center_good = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
+
+    # Compute offset for aligning the bad mask with the good mask centroid
+    offset = (center_good[0] - center_bad[0], center_good[1] - center_bad[1])
+
+    # Move the bad grape to the centroid of the good mask
+    M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
+    bad_mask = cv2.warpAffine(bad_mask, M, (destination.shape[1], destination.shape[0]), flags=cv2.INTER_NEAREST)
+    source = cv2.warpAffine(source, M, (destination.shape[1], destination.shape[0]))
+
+    # Get the intersection of the aligned masks
+    intersection = cv2.bitwise_and(bad_mask, good_mask)
+
+    blended = destination.copy()
+    blended[intersection == 1] = source[intersection == 1]
+
+    return blended
+
+
 def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     """
     Generates a synthetic image by blending a bad grape onto an image of good grapes.
@@ -355,6 +393,7 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
 
         # Blend the bad grape onto the good image
         img_good = PoissonBlending(bad_grape, img_good, bad_mask, good_mask, cv2.NORMAL_CLONE)
+        # img_good = naive_blending(bad_grape, img_good, bad_mask, good_mask)
     return img_good
 
 
@@ -389,6 +428,6 @@ if __name__ == "__main__":
             new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
 
             write_log(index, good_image_path, bad_image_path, log_folder)
-            imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.jpg", new_img)
+            imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.png", new_img)
 
         print("Synthetic images generated successfully!")
