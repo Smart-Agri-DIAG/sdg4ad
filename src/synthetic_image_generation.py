@@ -333,12 +333,12 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     bad_masks = generate_masks(img_bad, mask_generator, cfg["keep_ratio"])
 
     # Sample 3 good masks
-    good_indices = random.choices(range(len(good_masks)), k=3)
+    good_indices = random.choices(range(len(good_masks)), k=1)
     good_masks = [good_masks[i].astype(np.uint8) for i in good_indices]
 
     # Sample 3 bad masks
     bad_grapes = [img_bad * mask[:, :, None] for mask in bad_masks]
-    bad_indices = get_indices_of_edgiest_grapes(cfg, bad_grapes, 3)
+    bad_indices = get_indices_of_edgiest_grapes(cfg, bad_grapes, 1)
     bad_masks = [bad_masks[i].astype(np.uint8) for i in bad_indices]
     bad_grapes = [bad_grapes[i] for i in bad_indices]
 
