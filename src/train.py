@@ -33,7 +33,7 @@ def train_1_epoch(model, dataloader, loss_fn, optimizer, scheduler, device, scal
         else:
             loss.backward()
             optimizer.step()
-        scheduler.step()
+        # scheduler.step()
 
         total_loss += loss.item()
         progress_bar.set_postfix({"Batch loss": f"{loss.item():.3f}"})
@@ -65,8 +65,9 @@ def train(cfg):
     else:
         loss_fn = torch.nn.BCEWithLogitsLoss()
     scaler = GradScaler() if cfg["mixed_precision"] else None
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer, max_lr=cfg["lr"], epochs=cfg["epochs"], steps_per_epoch=len(train_dataloader))
+    # scheduler = torch.optim.lr_scheduler.OneCycleLR(
+    #     optimizer, max_lr=cfg["lr"], epochs=cfg["epochs"], steps_per_epoch=len(train_dataloader))
+    scheduler = None
 
     best_val_loss = float("inf")
     best_epoch = 0
