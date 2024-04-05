@@ -67,7 +67,7 @@ def train(cfg):
     scaler = GradScaler() if cfg["mixed_precision"] else None
     # scheduler = torch.optim.lr_scheduler.OneCycleLR(
     #     optimizer, max_lr=cfg["lr"], epochs=cfg["epochs"], steps_per_epoch=len(train_dataloader))
-    scheduler = None
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(0, cfg["epochs"]-10))
 
     best_val_loss = float("inf")
     best_epoch = 0
@@ -117,6 +117,8 @@ def train(cfg):
         elif cfg["early_stopping"] and (epoch - best_epoch) >= cfg["patience"]:
             print(f"Early stopping at epoch {epoch}")
             break
+
+        scheduler.step()
 
     # Test best model
     model.load_state_dict(torch.load(os.path.join(cfg["checkpoint_dir"], "best_model.pth")))
