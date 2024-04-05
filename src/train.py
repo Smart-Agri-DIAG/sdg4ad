@@ -70,6 +70,7 @@ def train(cfg):
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(0, cfg["epochs"]-10))
 
     best_val_loss = float("inf")
+    best_balanced_acc = 0.0
     best_epoch = 0
 
     for epoch in range(1, cfg["epochs"]+1):
@@ -100,9 +101,11 @@ def train(cfg):
             "Learning Rate": optimizer.param_groups[0]["lr"],
         }, step=epoch)
 
-        if (val_metrics["loss"] < best_val_loss):
+        if (val_metrics["balanced_accuracy"] > best_balanced_acc) or \
+                (val_metrics["balanced_accuracy"] == best_balanced_acc and val_metrics["loss"] < best_val_loss):
             best_epoch = epoch
             best_val_loss = val_metrics["loss"]
+            best_balanced_acc = val_metrics["balanced_accuracy"]
 
             torch.save(model.state_dict(), os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
             wandb.save(os.path.join(cfg["checkpoint_dir"], "best_model.pth"))
