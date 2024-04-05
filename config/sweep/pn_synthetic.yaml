@@ -23,4 +23,4 @@ parameters:
   split:
     values: [1, 2, 3]
   batch_size:
-    value: 64
+    value: 32
