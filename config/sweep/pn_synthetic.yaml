@@ -12,14 +12,22 @@ parameters:
     value: 0.0
   train_splits_path:
     values: ["data/Splits/PN/",
-             "data/Splits/PN_addition_100/",
-             "data/Splits/PN_addition_50/",
-             "data/Splits/PN_addition_25/",
-             "data/Splits/PN_addition_10/",
-             "data/Splits/PN_substitution_100/",
-             "data/Splits/PN_substitution_50/",
-             "data/Splits/PN_substitution_25/",
-             "data/Splits/PN_substitution_10/"]
+             "data/Splits/PN_1paste_addition_100/",
+             "data/Splits/PN_1paste_addition_50/",
+             "data/Splits/PN_1paste_addition_25/",
+             "data/Splits/PN_1paste_addition_10/",
+             "data/Splits/PN_1paste_substitution_100/",
+             "data/Splits/PN_1paste_substitution_50/",
+             "data/Splits/PN_1paste_substitution_25/",
+             "data/Splits/PN_1paste_substitution_10/",
+             "data/Splits/PN_3paste_addition_100/",
+             "data/Splits/PN_3paste_addition_50/",
+             "data/Splits/PN_3paste_addition_25/",
+             "data/Splits/PN_3paste_addition_10/",
+             "data/Splits/PN_3paste_substitution_100/",
+             "data/Splits/PN_3paste_substitution_50/",
+             "data/Splits/PN_3paste_substitution_25/",
+             "data/Splits/PN_3paste_substitution_10/"]
   split:
     values: [1, 2, 3]
   batch_size:
