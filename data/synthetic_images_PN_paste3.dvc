@@ -1,0 +1,6 @@
+outs:
+- md5: 039858a80524481cef984ccec9729160.dir
+  size: 8425755
+  nfiles: 664
+  hash: md5
+  path: synthetic_images_PN_paste3
