@@ -134,7 +134,7 @@ if __name__ == '__main__':
                        'data/Splits/PN/split_2_train.txt',
                        'data/Splits/PN/split_3_train.txt']
     output_root = 'data/Splits/'
-    img_extension = '.png'
+    img_extension = '.jpg'  # The extension of the synthetic images
 
     # Set the seed for reproducibility
     random.seed(42)

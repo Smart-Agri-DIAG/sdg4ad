@@ -428,6 +428,6 @@ if __name__ == "__main__":
             new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
 
             write_log(index, good_image_path, bad_image_path, log_folder)
-            imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.png", new_img)
+            imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.jpg", new_img)
 
         print("Synthetic images generated successfully!")
