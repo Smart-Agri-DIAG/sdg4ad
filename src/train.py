@@ -196,7 +196,7 @@ if __name__ == "__main__":
 
     # Setup Weight and Biases
     wandb.init(project="sdg4ad", entity="canopies-diag", config=cfg, mode=cfg["wandb_mode"])
-    wandb.run.log_code(".")
+    wandb.run.log_code()
     cfg = wandb.config  # Needed when running sweeps
 
     print_config(cfg)
