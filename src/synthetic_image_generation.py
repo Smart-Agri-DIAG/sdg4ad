@@ -33,11 +33,11 @@ def get_indices_of_edgiest_grapes(cfg, imgs, N):
     """
     edge_counts = []
     for img in imgs:
-        img = cv2.GaussianBlur(img, (cfg["sigma"], cfg["sigma"]), 0)
-        num_edges_a = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_a"], cfg["upper_th_a"]))
-        num_edges_b = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_b"], cfg["upper_th_b"]))
+        img = cv2.GaussianBlur(img, (cfg["kernel_size"], cfg["kernel_size"]), 0)
+        num_edges_wide = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_wide"], cfg["upper_th_wide"]))
+        num_edges_narrow = cv2.countNonZero(cv2.Canny(img, cfg["lower_th_narrow"], cfg["upper_th_narrow"]))
         non_black_pixels = np.count_nonzero(np.any(img != [0, 0, 0], axis=-1))
-        normalized_edge_count = abs(num_edges_a - num_edges_b) / (non_black_pixels)
+        normalized_edge_count = abs(num_edges_wide - num_edges_narrow) / (non_black_pixels)
         edge_counts.append(normalized_edge_count)
 
     indices = np.argsort(edge_counts)[::-1][:N]
@@ -315,6 +315,44 @@ def PoissonBlending(source, destination, bad_mask, good_mask, cloning_type):
     return blended
 
 
+def naive_blending(source, destination, bad_mask, good_mask):
+    """
+    Blends the source image with the destination image using naive cloning.
+
+    Args:
+        source (np.array): The source image.
+        destination (np.array): The destination image.
+        bad_mask (np.array): The mask of the bad grape.
+        good_mask (np.array): The mask of the good grape.
+
+    Returns:
+        np.array: The blended image.
+    """
+    # Get dimensions of the bad mask
+    x_bad, y_bad, w_bad, h_bad = cv2.boundingRect(bad_mask)
+    center_bad = (x_bad + w_bad // 2, y_bad + h_bad // 2)
+
+    # Set the center for the blending to be the centroid of the good grape
+    moments = cv2.moments(good_mask)
+    center_good = (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00']))
+
+    # Compute offset for aligning the bad mask with the good mask centroid
+    offset = (center_good[0] - center_bad[0], center_good[1] - center_bad[1])
+
+    # Move the bad grape to the centroid of the good mask
+    M = np.float32([[1, 0, offset[0]], [0, 1, offset[1]]])
+    bad_mask = cv2.warpAffine(bad_mask, M, (destination.shape[1], destination.shape[0]), flags=cv2.INTER_NEAREST)
+    source = cv2.warpAffine(source, M, (destination.shape[1], destination.shape[0]))
+
+    # Get the intersection of the aligned masks
+    intersection = cv2.bitwise_and(bad_mask, good_mask)
+
+    blended = destination.copy()
+    blended[intersection == 1] = source[intersection == 1]
+
+    return blended
+
+
 def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     """
     Generates a synthetic image by blending a bad grape onto an image of good grapes.
@@ -332,13 +370,13 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
     good_masks = generate_masks(img_good, mask_generator, cfg["keep_ratio"])
     bad_masks = generate_masks(img_bad, mask_generator, cfg["keep_ratio"])
 
-    # Sample 3 good masks
-    good_indices = random.choices(range(len(good_masks)), k=3)
+    # Sample good masks
+    good_indices = random.choices(range(len(good_masks)), k=1)
     good_masks = [good_masks[i].astype(np.uint8) for i in good_indices]
 
-    # Sample 3 bad masks
+    # Sample bad masks
     bad_grapes = [img_bad * mask[:, :, None] for mask in bad_masks]
-    bad_indices = get_indices_of_edgiest_grapes(cfg, bad_grapes, 3)
+    bad_indices = get_indices_of_edgiest_grapes(cfg, bad_grapes, 1)
     bad_masks = [bad_masks[i].astype(np.uint8) for i in bad_indices]
     bad_grapes = [bad_grapes[i] for i in bad_indices]
 
@@ -355,20 +393,25 @@ def generate_synthetic_image(cfg, img_good, img_bad, mask_generator):
 
         # Blend the bad grape onto the good image
         img_good = PoissonBlending(bad_grape, img_good, bad_mask, good_mask, cv2.NORMAL_CLONE)
+        # img_good = naive_blending(bad_grape, img_good, bad_mask, good_mask)
     return img_good
 
 
 if __name__ == "__main__":
-    cfg = load_config("config/config_synthetic_generation.yaml")
-    print_config(cfg)
-    set_seed(cfg["seed"])
+    cfg_paths = ["config/synthetic_generation/config_synthetic_generation_split_1.yaml",
+                 "config/synthetic_generation/config_synthetic_generation_split_2.yaml",
+                 "config/synthetic_generation/config_synthetic_generation_split_3.yaml"]
 
-    mask_generator = get_mask_generator(cfg)
+    for cfg_path in cfg_paths:
+        cfg = load_config(cfg_path)
+        print_config(cfg)
+        set_seed(cfg['seed'])
 
-    for file_path, output_path in zip(cfg["file_paths"], cfg["output_paths"]):
-        print(f"Generating synthetic images for {file_path}...")
-        good_image_paths, bad_image_paths = read_file_list(file_path)
-        log_folder = os.path.join(output_path, "logs")
+        mask_generator = get_mask_generator(cfg)
+
+        print(f"Generating synthetic images for {cfg['file_path']}...")
+        good_image_paths, bad_image_paths = read_file_list(cfg['file_path'])
+        log_folder = os.path.join(cfg['output_path'], "logs")
         os.makedirs(log_folder, exist_ok=True)
 
         num_good_images = len(good_image_paths)
@@ -385,6 +428,6 @@ if __name__ == "__main__":
             new_img = generate_synthetic_image(cfg, img_good, img_bad, mask_generator)
 
             write_log(index, good_image_path, bad_image_path, log_folder)
-            imageio.imsave(f"{output_path}/anomaly_{index}.jpg", new_img)
+            imageio.imsave(f"{cfg['output_path']}/anomaly_{index}.jpg", new_img)
 
-    print("Synthetic images generated successfully!")
+        print("Synthetic images generated successfully!")

@@ -19,13 +19,12 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
 
     Args:
         data_dir (str): The path to the data directory.
-        output_dir (str): The path to the output directory.
-        n_splits (int): The number of splits to generate.
-        output_prefix (str): The prefix to use for the output files.
-        image_extension (str): The extension of the images.
+        original_split (str): The path to the original split file.
+        output_root (str): The root path to the output directory.
+        image_extension (str): The extension of the synthetic images.
     """
     split_filename = original_split.split('/')[-1]
-    original_folder = original_split.split('/')[-2]
+    folder_name = data_dir.split('/')[-2]
 
     with open(original_split, 'r') as f:
         original_split_lines = f.readlines()
@@ -47,7 +46,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
     print(f'Number of synthetic bad images: {num_synthetic}')
 
     # Addition 100%
-    output_file = os.path.join(output_root, f"{original_folder}_addition_100", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_addition_100", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -57,7 +56,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
     assert num_good + num_bad + num_synthetic == len(open(output_file).readlines())
 
     # Addition 50%
-    output_file = os.path.join(output_root, f"{original_folder}_addition_50", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_addition_50", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -66,7 +65,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
             f.write(f'{image} 1\n')
 
     # Addition 25%
-    output_file = os.path.join(output_root, f"{original_folder}_addition_25", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_addition_25", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -75,7 +74,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
             f.write(f'{image} 1\n')
 
     # Addition 10%
-    output_file = os.path.join(output_root, f"{original_folder}_addition_10", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_addition_10", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -84,7 +83,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
             f.write(f'{image} 1\n')
 
     # Substition 100%
-    output_file = os.path.join(output_root, f"{original_folder}_substitution_100", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_substitution_100", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -93,7 +92,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
     assert num_good + num_bad == len(open(output_file).readlines())
 
     # Substition 50%
-    output_file = os.path.join(output_root, f"{original_folder}_substitution_50", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_substitution_50", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -104,7 +103,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
     assert num_good + num_bad == len(open(output_file).readlines())
 
     # Substition 25%
-    output_file = os.path.join(output_root, f"{original_folder}_substitution_25", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_substitution_25", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -115,7 +114,7 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
     assert num_good + num_bad == len(open(output_file).readlines())
 
     # Substition 10%
-    output_file = os.path.join(output_root, f"{original_folder}_substitution_10", split_filename)
+    output_file = os.path.join(output_root, f"{folder_name}_substitution_10", split_filename)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, 'w') as f:
         f.writelines(good_lines)
@@ -127,13 +126,20 @@ def generate_splits_with_synthetic(data_dir, original_split, output_root, image_
 
 
 if __name__ == '__main__':
-    data_dirs = ['data/synthetic_images_PN/split_1',
-                 'data/synthetic_images_PN/split_2',
-                 'data/synthetic_images_PN/split_3']
+    data_dirs = ['data/synthetic_images_PN_paste1/split_1',
+                 'data/synthetic_images_PN_paste1/split_2',
+                 'data/synthetic_images_PN_paste1/split_3',
+                 'data/synthetic_images_PN_paste3/split_1',
+                 'data/synthetic_images_PN_paste3/split_2',
+                 'data/synthetic_images_PN_paste3/split_3']
     original_splits = ['data/Splits/PN/split_1_train.txt',
+                       'data/Splits/PN/split_2_train.txt',
+                       'data/Splits/PN/split_3_train.txt',
+                       'data/Splits/PN/split_1_train.txt',
                        'data/Splits/PN/split_2_train.txt',
                        'data/Splits/PN/split_3_train.txt']
     output_root = 'data/Splits/'
+    img_extension = '.jpg'  # The extension of the synthetic images
 
     # Set the seed for reproducibility
     random.seed(42)
@@ -141,6 +147,6 @@ if __name__ == '__main__':
 
     for data_dir, original_split in zip(data_dirs, original_splits):
         print(f'Generating splits for {data_dir}...')
-        generate_splits_with_synthetic(data_dir, original_split, output_root)
+        generate_splits_with_synthetic(data_dir, original_split, output_root, img_extension)
         print("-----------------------------------\n")
     print('Done!\n')

@@ -1,0 +1,25 @@
+program: src/train.py
+project: sdg4ad
+entity: canopies-diag
+method: grid
+metric:
+  name: Best Model Balanced Accuracy
+  goal: maximize
+parameters:
+  lr:
+    value: 0.00001
+  weight_decay:
+    value: 0.0
+  train_splits_path:
+    values: ["data/Splits/synthetic_images_PN_paste3_addition_100/",
+             "data/Splits/synthetic_images_PN_paste3_addition_50/",
+             "data/Splits/synthetic_images_PN_paste3_addition_25/",
+             "data/Splits/synthetic_images_PN_paste3_addition_10/",
+             "data/Splits/synthetic_images_PN_paste3_substitution_100/",
+             "data/Splits/synthetic_images_PN_paste3_substitution_50/",
+             "data/Splits/synthetic_images_PN_paste3_substitution_25/",
+             "data/Splits/synthetic_images_PN_paste3_substitution_10/"]
+  split:
+    values: [1, 2, 3]
+  batch_size:
+    value: 32

@@ -3,11 +3,13 @@ project: sdg4ad
 entity: canopies-diag
 method: grid
 metric:
-  name: Validation Balanced Accuracy
+  name: Best Model Balanced Accuracy
   goal: maximize
 parameters:
   lr:
-    values: [0.001, 0.0001, 0.00001, 0.000001]
+    value: 0.00001
+  weight_decay:
+    value: 0.0
   split:
     values: [1, 2, 3]
   batch_size:
