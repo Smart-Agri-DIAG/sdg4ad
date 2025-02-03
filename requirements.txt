@@ -1,0 +1,12 @@
+imageio==2.36.0
+matplotlib==3.10.0
+numpy==2.2.2
+opencv_python==4.11.0.86
+Pillow==11.1.0
+PyYAML==6.0.2
+scikit_learn==1.6.1
+segment_anything==1.0
+torch==2.4.1
+torchvision==0.19.1
+tqdm==4.66.5
+wandb==0.19.5
