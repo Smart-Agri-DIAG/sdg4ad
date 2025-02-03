@@ -2,7 +2,7 @@
 import sys
 from tqdm import tqdm
 import wandb
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler
 import numpy as np
 import torch
 import os
@@ -21,7 +21,7 @@ def train_1_epoch(model, dataloader, loss_fn, optimizer, scheduler, device, scal
     for inputs, labels in dataloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
-        with autocast(enabled=scaler is not None):
+        with autocast(device, enabled=scaler is not None):
             outputs = model(inputs).squeeze(dim=1)
             loss = loss_fn(outputs, labels)
 
@@ -64,7 +64,7 @@ def train(cfg):
         loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(train_dataset.pos_weight).to(device))
     else:
         loss_fn = torch.nn.BCEWithLogitsLoss()
-    scaler = GradScaler() if cfg["mixed_precision"] else None
+    scaler = GradScaler(device) if cfg["mixed_precision"] else None
     # scheduler = torch.optim.lr_scheduler.OneCycleLR(
     #     optimizer, max_lr=cfg["lr"], epochs=cfg["epochs"], steps_per_epoch=len(train_dataloader))
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(0, cfg["epochs"]-10))
@@ -150,7 +150,7 @@ def validate(model, dataloader, loss_fn, device):
     with torch.no_grad():
         for inputs, labels in dataloader:
             inputs, labels = inputs.to(device), labels.to(device)
-            with autocast():
+            with autocast(device):
                 outputs = model(inputs).squeeze(dim=1)
 
             loss = loss_fn(outputs, labels)

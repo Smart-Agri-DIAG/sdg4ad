@@ -1,4 +1,4 @@
-from torch.cuda.amp import autocast
+from torch.amp import autocast
 import numpy as np
 import torch
 import os
@@ -34,7 +34,7 @@ def test(model, dataloader, device):
     with torch.no_grad():
         for batch_num, (inputs, labels) in enumerate(tqdm(dataloader, desc="Testing")):
             inputs, labels = inputs.to(device), labels.to(device)
-            with autocast():
+            with autocast(device):
                 outputs = model(inputs).squeeze(dim=1)
 
             preds = torch.sigmoid(outputs) > 0.5
