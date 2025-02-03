@@ -1,0 +1,3 @@
+[submodule "patch_cropper"]
+	path = patch_cropper
+	url = git@github.com:Smart-Agri-DIAG/patch_cropper.git

@@ -1,0 +1,17 @@
+seed: 42
+file_path: "data/Splits/PN/split_1_train.txt"
+output_path: "data/synthetic_images_PN/split_1"
+
+# SAM
+sam_checkpoint: "weights/sam_vit_h_4b8939.pth"
+model_type: "vit_h"
+device: "cuda"
+points_per_side: 32
+
+# Canny
+keep_ratio: 0.5
+kernel_size: 7
+lower_th_wide: 50
+upper_th_wide: 75
+lower_th_narrow: 50
+upper_th_narrow: 150

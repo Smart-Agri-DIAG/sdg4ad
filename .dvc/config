@@ -1,0 +1,5 @@
+[core]
+    autostage = true
+    remote = sdg4adremote
+['remote "sdg4adremote"']
+    url = gdrive://1tP21UG3wBG08rqLxgm8_tZvb8v1ldwu0

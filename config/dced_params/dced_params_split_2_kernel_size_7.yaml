@@ -1,0 +1,10 @@
+kernel_size: 7
+lower_th_narrow: 50
+lower_th_wide: 0
+upper_th_narrow: 125
+upper_th_wide: 75
+val_balanced_accuracy: '0.7743506493506493'
+val_f1_score: '0.6133333333333333'
+val_precision: '0.48936170212765956'
+val_recall: '0.8214285714285714'
+val_specificity: '0.7272727272727273'
