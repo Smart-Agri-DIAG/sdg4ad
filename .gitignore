@@ -1,9 +1,5 @@
 data/*
-!*.dvc
-*.pt
-*.joblib
-*tmp*
-*_debug*
+!data/.gitkeep
 wandb
 weights
 

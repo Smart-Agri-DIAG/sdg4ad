@@ -13,6 +13,9 @@ Early detection of illnesses and pest infestations is critical in fruit cultivat
 - **data/**: Stores datasets, dataset splits, and generated synthetic images.
 - **notebooks/**: Includes Jupyter Notebooks for visualizing the synthetic image generation process and generating figures for the paper.
 
+## Dataset
+Download the dataset from the following [link](https://drive.google.com/drive/folders/1eKK0O3rVdAMoA8Fn-3xd5gmGS9jf-nbT?usp=sharing) and place the content inside **data/**.
+
 ## How to Use
 
 1. **Clone the Repository:**
