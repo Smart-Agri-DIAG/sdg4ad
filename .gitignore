@@ -1,9 +1,4 @@
-data/*
-!*.dvc
-*.pt
-*.joblib
-*tmp*
-*_debug*
+data
 wandb
 weights
 
